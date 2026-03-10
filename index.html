@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NOM-026-STPS-2008 | Inspector de Campo</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,400&display=swap');
+
+:root {
+  --red:     #C0392B; --red-l:   #FADBD8; --red-d:   #922B21;
+  --amber:   #E67E22; --amber-l: #FDEBD0;
+  --yellow:  #D4AC0D; --yellow-l:#FEF9E7;
+  --green:   #1E8449; --green-l: #D5F5E3; --green-d: #145A32;
+  --blue:    #154360; --blue-m:  #2471A3; --blue-l:  #D6EAF8;
+  --ink:     #1A1F2E;
+  --ink-2:   #2D3348;
+  --ink-3:   #4A5568;
+  --smoke:   #8896A8;
+  --mist:    #C8D3DF;
+  --cloud:   #EEF2F7;
+  --white:   #FFFFFF;
+  --panel:   #F5F7FA;
+  --r:       5px;
+  --shadow:  0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+  --shadow-up: 0 -2px 20px rgba(0,0,0,.1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 14px;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── TOP BAR ─────────────────────────────────────────── */
+.topbar {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--ink);
+  height: 52px;
+  display: flex; align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.25);
+}
+.topbar-logo {
+  background: var(--red);
+  color: #fff;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  padding: 3px 7px; border-radius: 3px;
+  letter-spacing: .5px; white-space: nowrap;
+}
+.topbar-title {
+  color: #fff; font-size: 13px; font-weight: 700;
+  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.topbar-plant {
+  color: var(--smoke); font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 160px;
+}
+.topbar-save {
+  background: var(--red); color: #fff;
+  border: none; border-radius: var(--r);
+  padding: 6px 12px; font-size: 12px; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+  font-family: inherit;
+  transition: background .15s;
+}
+.topbar-save:hover { background: var(--red-d); }
+
+/* ── BOTTOM TAB BAR ──────────────────────────────────── */
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: var(--white);
+  border-top: 1px solid var(--mist);
+  display: flex;
+  box-shadow: var(--shadow-up);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.tab-btn {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px 4px 6px;
+  gap: 2px; cursor: pointer;
+  border: none; background: none;
+  color: var(--smoke); font-family: inherit;
+  transition: color .15s;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab-btn.active { color: var(--blue-m); }
+.tab-btn.active::before {
+  content: '';
+  position: absolute; top: 0; left: 20%; right: 20%;
+  height: 2px; background: var(--blue-m); border-radius: 0 0 2px 2px;
+}
+.tab-icon { font-size: 18px; line-height: 1; }
+.tab-label { font-size: 9px; font-weight: 700; letter-spacing: .3px; text-transform: uppercase; }
+.tab-badge {
+  position: absolute; top: 6px; right: 12px;
+  background: var(--red); color: #fff;
+  font-size: 9px; font-weight: 700;
+  min-width: 16px; height: 16px;
+  border-radius: 8px; padding: 0 4px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── MAIN CONTENT ─────────────────────────────────────── */
+.main {
+  padding: 16px 12px;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0));
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* ── PAGES ─────────────────────────────────────────────── */
+.page { display: none; animation: fadeIn .2s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* ── SECTION HEADERS ─────────────────────────────────── */
+.page-header { margin-bottom: 16px; }
+.page-title { font-size: 20px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.page-sub { font-size: 12px; color: var(--smoke); margin-top: 3px; font-family: 'DM Mono', monospace; }
+
+/* ── CARDS ────────────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--mist);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.card-head {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--cloud);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-head h3 { font-size: 13px; font-weight: 700; flex: 1; }
+.card-ico {
+  width: 28px; height: 28px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.card-body { padding: 14px 16px; }
+
+/* ── FORMS ────────────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-grid.cols-1 { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field.span2 { grid-column: span 2; }
+.field label {
+  font-size: 10px; font-weight: 700; color: var(--smoke);
+  letter-spacing: .6px; text-transform: uppercase;
+}
+.field input, .field select, .field textarea {
+  border: 1px solid var(--mist);
+  border-radius: var(--r);
+  padding: 9px 11px;
+  font-family: inherit; font-size: 13px; color: var(--ink);
+  background: var(--white);
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: var(--blue-m);
+  box-shadow: 0 0 0 3px rgba(36,113,163,.12);
+}
+.field textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+
+/* ── STATS ROW ────────────────────────────────────────── */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
+.stat-chip {
+  background: var(--white); border: 1px solid var(--mist);
+  border-radius: 8px; padding: 10px 8px; text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat-chip .val { font-size: 22px; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; }
+.stat-chip .lbl { font-size: 9px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; margin-top: 3px; }
+.stat-green .val { color: var(--green); } .stat-green { border-top: 3px solid var(--green); }
+.stat-red   .val { color: var(--red);   } .stat-red   { border-top: 3px solid var(--red);   }
+.stat-amber .val { color: var(--amber); } .stat-amber { border-top: 3px solid var(--amber); }
+.stat-blue  .val { color: var(--blue-m);} .stat-blue  { border-top: 3px solid var(--blue-m);}
+
+/* ── PROGRESS ─────────────────────────────────────────── */
+.pbar-wrap { background: var(--cloud); border-radius: 20px; height: 8px; overflow: hidden; }
+.pbar-fill { height: 100%; border-radius: 20px; transition: width .5s ease; }
+
+/* ── LV TABLE ─────────────────────────────────────────── */
+.lv-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; }
+.lv-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+.lv-table th {
+  background: var(--ink); color: #fff;
+  padding: 9px 12px; font-size: 10px; font-weight: 700;
+  letter-spacing: .5px; text-align: left;
+  white-space: nowrap;
+}
+.lv-table td {
+  padding: 8px 12px; border-bottom: 1px solid var(--cloud);
+  vertical-align: middle; font-size: 12px;
+}
+.lv-table tr:last-child td { border-bottom: none; }
+.lv-table tr:hover td { background: var(--panel); }
+.lv-sec-row td {
+  background: var(--blue); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: .4px;
+  padding: 7px 12px;
+}
+.lv-sec-row:hover td { background: var(--blue) !important; }
+
+.status-pill {
+  display: inline-flex; align-items: center;
+  border-radius: 20px; padding: 4px 10px;
+  font-size: 11px; font-weight: 700; white-space: nowrap;
+  cursor: pointer; border: none; font-family: inherit;
+  transition: all .15s;
+}
+.pill-cumple   { background: var(--green-l); color: var(--green); }
+.pill-nocumple { background: var(--red-l);   color: var(--red);   }
+.pill-na       { background: var(--cloud);   color: var(--smoke); }
+.pill-pendiente{ background: var(--yellow-l);color: var(--yellow);}
+
+.lv-obs { border: 1px solid var(--mist); border-radius: 4px; padding: 5px 8px; font-size: 11px; font-family: inherit; width: 100%; min-width: 120px; }
+.lv-foto { border: 1px solid var(--mist); border-radius: 4px; padding: 5px 8px; font-size: 11px; font-family: 'DM Mono', monospace; width: 88px; text-align: center; }
+
+/* ── CATALOG ITEMS ────────────────────────────────────── */
+.cat-section-hdr {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  background: var(--ink-2); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: .4px;
+}
+.cat-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--cloud);
+  transition: background .1s;
+}
+.cat-item:last-child { border-bottom: none; }
+.cat-item:hover { background: var(--panel); }
+.cat-toggle {
+  width: 22px; height: 22px; border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+  border: 2px solid var(--mist); background: var(--white);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 13px; transition: all .15s;
+}
+.cat-toggle.on  { background: var(--green); border-color: var(--green); color: #fff; }
+.cat-toggle.off { background: var(--white); border-color: var(--mist); color: transparent; }
+.cat-info { flex: 1; }
+.cat-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
+.cat-meta { font-size: 11px; color: var(--smoke); margin-top: 2px; }
+.cat-extra { font-size: 10px; font-family: 'DM Mono', monospace; }
+.color-dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 3px;
+}
+.dot-rojo   { background: var(--red); }
+.dot-amarillo { background: #D4AC0D; }
+.dot-verde  { background: var(--green); }
+
+/* ── ADD EXTRA ROW ────────────────────────────────────── */
+.add-extra-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px; width: 100%; text-align: left;
+  background: none; border: none; border-top: 1px dashed var(--mist);
+  color: var(--blue-m); font-size: 12px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  transition: background .15s;
+}
+.add-extra-btn:hover { background: var(--blue-l); }
+
+/* ── HALLAZGOS ────────────────────────────────────────── */
+.hallazgo-card {
+  background: var(--white); border: 1px solid var(--mist);
+  border-radius: 8px; margin-bottom: 10px;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.hallazgo-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 14px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.hallazgo-head:hover { background: var(--panel); }
+.h-folio {
+  font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+  background: var(--blue-l); color: var(--blue); padding: 2px 7px;
+  border-radius: 3px; white-space: nowrap; flex-shrink: 0;
+}
+.h-title { font-size: 13px; font-weight: 600; flex: 1; line-height: 1.3; }
+.prio-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; white-space: nowrap;
+}
+.prio-alta  { background: var(--red-l);    color: var(--red);   }
+.prio-media { background: var(--amber-l);  color: var(--amber); }
+.prio-baja  { background: var(--green-l);  color: var(--green); }
+.est-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; white-space: nowrap;
+}
+.est-abierto  { background: var(--red-l);    color: var(--red);   }
+.est-proceso  { background: var(--yellow-l); color: var(--yellow);}
+.est-cerrado  { background: var(--green-l);  color: var(--green); }
+.hallazgo-body {
+  display: none; padding: 14px 16px;
+  border-top: 1px solid var(--cloud); background: var(--panel);
+}
+.hallazgo-body.open { display: block; }
+.chevron { color: var(--smoke); font-size: 12px; transition: transform .2s; flex-shrink: 0; }
+.chevron.open { transform: rotate(180deg); }
+
+/* ── FOTO GRID ────────────────────────────────────────── */
+.foto-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.foto-thumb {
+  position: relative; aspect-ratio: 4/3;
+  border-radius: 6px; overflow: hidden;
+  background: var(--cloud); border: 1px solid var(--mist);
+  cursor: pointer;
+}
+.foto-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.foto-label-overlay {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,.65));
+  color: #fff; font-size: 9px; font-family: 'DM Mono', monospace;
+  padding: 10px 5px 4px; text-align: center;
+}
+.foto-del {
+  position: absolute; top: 3px; right: 3px;
+  background: rgba(192,57,43,.9); color: #fff;
+  border: none; border-radius: 50%; width: 18px; height: 18px;
+  font-size: 10px; cursor: pointer; display: none;
+  align-items: center; justify-content: center; font-family: inherit;
+}
+.foto-thumb:hover .foto-del { display: flex; }
+.foto-add-btn {
+  aspect-ratio: 4/3; border: 2px dashed var(--mist); border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--smoke); font-size: 11px; gap: 4px;
+  background: var(--white); transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.foto-add-btn:hover { border-color: var(--blue-m); color: var(--blue-m); background: var(--blue-l); }
+.foto-add-icon { font-size: 22px; }
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 9px 16px; border-radius: var(--r);
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all .15s; -webkit-tap-highlight-color: transparent;
+}
+.btn-primary { background: var(--blue-m); color: #fff; border-color: var(--blue-m); }
+.btn-primary:hover { background: var(--blue); }
+.btn-red  { background: var(--red);   color: #fff; border-color: var(--red); }
+.btn-red:hover { background: var(--red-d); }
+.btn-green{ background: var(--green); color: #fff; border-color: var(--green); }
+.btn-ghost { background: transparent; color: var(--ink-3); border-color: var(--mist); }
+.btn-ghost:hover { background: var(--cloud); }
+.btn-sm { padding: 5px 10px; font-size: 11px; }
+.btn-full { width: 100%; justify-content: center; }
+
+/* ── NEW HALLAZGO PANEL ───────────────────────────────── */
+.new-hall-panel {
+  background: var(--blue-l); border: 1px solid #AED6F1;
+  border-radius: 8px; padding: 14px;
+  margin-bottom: 14px; display: none;
+}
+.new-hall-panel.open { display: block; }
+.new-hall-panel h4 { font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 12px; }
+
+/* ── MODAL ────────────────────────────────────────────── */
+.modal-wrap {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(10,15,25,.75); backdrop-filter: blur(3px);
+  align-items: flex-end; justify-content: center;
+}
+.modal-wrap.open { display: flex; }
+.modal {
+  background: var(--white); border-radius: 16px 16px 0 0;
+  width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  animation: slideUp .25s ease;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+.modal-handle { width: 36px; height: 4px; background: var(--mist); border-radius: 2px; margin: 10px auto 0; }
+.modal-head { padding: 14px 20px; border-bottom: 1px solid var(--cloud); display: flex; align-items: center; justify-content: space-between; }
+.modal-head h3 { font-size: 15px; font-weight: 700; }
+.modal-close { background: none; border: none; font-size: 18px; color: var(--smoke); cursor: pointer; padding: 2px; }
+.modal-body { padding: 16px 20px; }
+
+/* ── REPORTE PRINT ───────────────────────────────────── */
+.report-section { margin-bottom: 24px; }
+.report-section h2 {
+  font-size: 14px; font-weight: 700; color: var(--blue);
+  border-bottom: 2px solid var(--blue-l); padding-bottom: 6px; margin-bottom: 12px;
+  text-transform: uppercase; letter-spacing: .5px;
+}
+.report-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.report-table th { background: var(--ink); color: #fff; padding: 7px 10px; text-align: left; font-size: 11px; }
+.report-table td { padding: 7px 10px; border-bottom: 1px solid var(--cloud); }
+.report-table tr:last-child td { border-bottom: none; }
+
+/* ── MISC ─────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--cloud); margin: 14px 0; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.flex-end { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.gap-8 { gap: 8px; }
+.mt-10 { margin-top: 10px; }
+.text-sm { font-size: 12px; }
+.text-muted { color: var(--smoke); }
+.mono { font-family: 'DM Mono', monospace; }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--smoke); }
+.empty-state .ico { font-size: 38px; margin-bottom: 8px; }
+.empty-state p { font-size: 13px; }
+.tag-ci     { background: var(--red-l);    color: var(--red);   font-size:10px; font-weight:700; padding:1px 6px; border-radius:3px; }
+.tag-pel    { background: var(--yellow-l); color: var(--yellow);font-size:10px; font-weight:700; padding:1px 6px; border-radius:3px; }
+.tag-nopel  { background: var(--green-l);  color: var(--green); font-size:10px; font-weight:700; padding:1px 6px; border-radius:3px; }
+.notice {
+  background: var(--yellow-l); border: 1px solid #F0D060;
+  border-radius: var(--r); padding: 10px 12px;
+  font-size: 12px; color: #7A5C00; margin-bottom: 12px;
+}
+
+/* ── SNACKBAR ─────────────────────────────────────────── */
+.snack {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(16px);
+  background: var(--ink); color: #fff; padding: 9px 18px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; white-space: nowrap;
+  opacity: 0; transition: all .25s; pointer-events: none; z-index: 999;
+}
+.snack.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .form-grid { grid-template-columns: 1fr; }
+  .field.span2 { grid-column: span 1; }
+  .main { padding: 12px 10px; }
+  .foto-grid { grid-template-columns: repeat(3,1fr); }
+}
+@media print {
+  .topbar,.tabbar,.btn,.foto-add-btn,.foto-del,.cat-toggle,.add-extra-btn { display: none !important; }
+  .main { padding: 0; max-width: 100%; }
+  .page { display: block !important; }
+  body { background: white; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <span class="topbar-logo">NOM-026</span>
+  <span class="topbar-title">Inspector de Campo</span>
+  <span class="topbar-plant" id="topbar-plant">Sin planta</span>
+  <button class="topbar-save" onclick="saveToLocal()">💾</button>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══════════════════════════════ PÁGINA: INICIO ═══════════════════════════ -->
+<div class="page active" id="pg-inicio">
+  <div class="page-header">
+    <div class="page-title">Datos del Estudio</div>
+    <div class="page-sub">NOM-026-STPS-2008 · Señalización e Identificación de Tuberías</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:#D6EAF8">🏢</div>
+      <h3>Empresa</h3>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="field span2"><label>Razón Social</label><input id="d_razon" type="text" placeholder="Nombre completo de la empresa"></div>
+        <div class="field"><label>RFC</label><input id="d_rfc" type="text" placeholder="ABC-000000-XX0"></div>
+        <div class="field"><label>Registro IMSS</label><input id="d_imss" type="text"></div>
+        <div class="field span2"><label>Domicilio</label><input id="d_dom" type="text" placeholder="Calle, No., Colonia"></div>
+        <div class="field"><label>Municipio</label><input id="d_mun" type="text"></div>
+        <div class="field"><label>Estado</label><input id="d_est" type="text"></div>
+        <div class="field"><label>Giro / Actividad</label><input id="d_giro" type="text"></div>
+        <div class="field"><label>Clase Riesgo IMSS</label>
+          <select id="d_riesgo"><option value="">—</option><option>I</option><option>II</option><option>III</option><option>IV</option><option>V</option></select>
+        </div>
+        <div class="field"><label>No. Trabajadores</label><input id="d_trab" type="number" min="0"></div>
+        <div class="field"><label>Turnos</label><input id="d_turnos" type="number" min="1" max="4"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:#D5F5E3">📋</div>
+      <h3>Datos del Estudio</h3>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="field"><label>Fecha Visita de Campo</label><input id="d_fvisita" type="date"></div>
+        <div class="field"><label>Fecha Elaboración</label><input id="d_felab" type="date"></div>
+        <div class="field span2"><label>Elaborado por</label><input id="d_elab" type="text"></div>
+        <div class="field span2"><label>Empresa Consultora</label><input id="d_consultora" type="text"></div>
+        <div class="field"><label>Permiso STPS</label><input id="d_permiso" type="text"></div>
+        <div class="field"><label>No. Revisión</label><input id="d_rev" type="text" value="1"></div>
+        <div class="field span2"><label>Observaciones Iniciales</label><textarea id="d_obs"></textarea></div>
+      </div>
+      <div class="mt-10">
+        <button class="btn btn-primary btn-full" onclick="saveDatos(); showSnack('✓ Datos guardados')">Guardar Datos</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PÁGINA: CONFIG ═══════════════════════════ -->
+<div class="page" id="pg-config">
+  <div class="page-header">
+    <div class="page-title">Configuración</div>
+    <div class="page-sub">Seleccione lo que aplica a su centro de trabajo</div>
+  </div>
+
+  <div class="notice">
+    ✏️ Toque ✓ para incluir un elemento o ✗ para excluirlo. Al final de cada sección puede agregar elementos propios.
+  </div>
+
+  <!-- A. ÁREAS -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:#D6EAF8">🏭</div>
+      <h3>A. Áreas de la Planta</h3>
+      <span class="mono text-sm text-muted" id="cnt-areas" style="margin-left:auto">—</span>
+    </div>
+    <div id="cat-areas-list"></div>
+    <button class="add-extra-btn" onclick="addCatExtra('areas')">＋ Agregar área no listada</button>
+  </div>
+
+  <!-- B. SUSTANCIAS -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:#FADBD8">⚠️</div>
+      <h3>B. Sustancias Peligrosas</h3>
+      <span class="mono text-sm text-muted" id="cnt-sust" style="margin-left:auto">—</span>
+    </div>
+    <div id="cat-sust-list"></div>
+    <button class="add-extra-btn" onclick="addCatExtra('sust')">＋ Agregar sustancia</button>
+  </div>
+
+  <!-- C. TUBERÍAS -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:#FDEBD0">🔧</div>
+      <h3>C. Tuberías y Fluidos</h3>
+      <span class="mono text-sm text-muted" id="cnt-tub" style="margin-left:auto">—</span>
+    </div>
+    <div id="cat-tub-list"></div>
+    <button class="add-extra-btn" onclick="addCatExtra('tub')">＋ Agregar tubería/fluido</button>
+  </div>
+
+  <!-- D. SEÑALAMIENTOS -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:#D5F5E3">🚦</div>
+      <h3>D. Señalamientos</h3>
+      <span class="mono text-sm text-muted" id="cnt-senal" style="margin-left:auto">—</span>
+    </div>
+    <div id="cat-senal-list"></div>
+    <button class="add-extra-btn" onclick="addCatExtra('senal')">＋ Agregar señalamiento</button>
+  </div>
+
+  <button class="btn btn-green btn-full" onclick="saveConfig(); showSnack('✓ Configuración guardada')">Guardar Configuración</button>
+</div>
+
+<!-- ═══════════════════════════════ PÁGINA: LV ═══════════════════════════════ -->
+<div class="page" id="pg-lv">
+  <div class="page-header">
+    <div class="page-title">Verificación</div>
+    <div class="page-sub">Evalúe cada requisito en campo</div>
+  </div>
+
+  <!-- Sub-tabs -->
+  <div style="display:flex; gap:6px; margin-bottom:12px;">
+    <button class="btn btn-sm" id="lvtab-sen" onclick="showLVTab('sen')" style="background:var(--blue-m);color:#fff;flex:1">🚦 Señalización</button>
+    <button class="btn btn-sm btn-ghost" id="lvtab-tub" onclick="showLVTab('tub')" style="flex:1">🔧 Tuberías</button>
+  </div>
+
+  <!-- LV Señalización -->
+  <div id="lv-sen-panel">
+    <div class="stats-row" id="stats-sen"></div>
+    <div class="card">
+      <div class="lv-wrap">
+        <table class="lv-table">
+          <thead><tr>
+            <th style="width:36px">#</th>
+            <th>Requisito</th>
+            <th style="width:120px">Estatus</th>
+            <th style="width:78px">Foto</th>
+            <th style="width:160px">Observaciones</th>
+          </tr></thead>
+          <tbody id="lv-sen-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LV Tuberías -->
+  <div id="lv-tub-panel" style="display:none">
+    <div class="stats-row" id="stats-tub"></div>
+    <div class="card">
+      <div class="lv-wrap">
+        <table class="lv-table">
+          <thead><tr>
+            <th style="width:36px">#</th>
+            <th>Tubería / Fluido</th>
+            <th style="width:80px">Color Req.</th>
+            <th style="width:110px">Color Aplic.</th>
+            <th style="width:110px">Señal Cont.</th>
+            <th style="width:110px">Flecha Dir.</th>
+            <th style="width:78px">Foto</th>
+            <th style="width:160px">Obs.</th>
+          </tr></thead>
+          <tbody id="lv-tub-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PÁGINA: HALLAZGOS ════════════════════════ -->
+<div class="page" id="pg-hall">
+  <div class="page-header">
+    <div class="page-title">Hallazgos</div>
+    <div class="page-sub">No conformidades detectadas en campo</div>
+  </div>
+
+  <button class="btn btn-red btn-full" onclick="toggleNewHall()" style="margin-bottom:12px">＋ Nuevo Hallazgo</button>
+
+  <div class="new-hall-panel" id="new-hall-panel">
+    <h4>📋 Registrar Hallazgo</h4>
+    <div class="form-grid cols-1">
+      <div class="field"><label>Área / Ubicación</label><input id="nh_area" type="text" placeholder="Ej: Área Calderas"></div>
+      <div class="field"><label>Descripción del Hallazgo</label><textarea id="nh_desc" placeholder="Describe detalladamente lo observado..."></textarea></div>
+      <div class="field"><label>Norma / Requisito Incumplido</label><input id="nh_norma" type="text" placeholder="Ej: NOM-026 Req. 7 — Señales de precaución"></div>
+    </div>
+    <div class="form-grid" style="margin-top:10px">
+      <div class="field"><label>Prioridad</label>
+        <select id="nh_prio"><option value="ALTA">🔴 ALTA</option><option value="MEDIA" selected>🟡 MEDIA</option><option value="BAJA">🟢 BAJA</option></select>
+      </div>
+      <div class="field"><label>Folio(s) de Foto</label><input id="nh_foto" type="text" placeholder="FOTO-001"></div>
+      <div class="field span2"><label>Acción Correctiva Propuesta</label><textarea id="nh_accion" placeholder="Acción recomendada..."></textarea></div>
+      <div class="field"><label>Responsable</label><input id="nh_resp" type="text"></div>
+      <div class="field"><label>Fecha Límite</label><input id="nh_fecha" type="date"></div>
+    </div>
+    <div class="flex-end">
+      <button class="btn btn-ghost btn-sm" onclick="toggleNewHall()">Cancelar</button>
+      <button class="btn btn-red btn-sm" onclick="addHallazgo()">✔ Guardar</button>
+    </div>
+  </div>
+
+  <div id="hall-list"></div>
+  <div class="empty-state" id="hall-empty">
+    <div class="ico">📋</div>
+    <p>Sin hallazgos registrados.<br>Toque el botón rojo para agregar.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PÁGINA: FOTOS ════════════════════════════ -->
+<div class="page" id="pg-fotos">
+  <div class="page-header">
+    <div class="page-title">Evidencia Fotográfica</div>
+    <div class="page-sub"><span id="foto-count-sub">0</span> fotos registradas</div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-ico" style="background:#FEF9E7">📷</div>
+      <h3>Agregar Foto</h3>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="field"><label>Folio</label><input id="foto_folio" type="text" placeholder="FOTO-001"></div>
+        <div class="field"><label>Área</label><input id="foto_area" type="text" placeholder="Área Calderas"></div>
+        <div class="field span2"><label>Descripción</label><input id="foto_desc" type="text" placeholder="Qué muestra la foto..."></div>
+        <div class="field"><label>Tipo</label>
+          <select id="foto_tipo">
+            <option value="No conformidad">❌ No conformidad</option>
+            <option value="Cumplimiento">✅ Cumplimiento</option>
+            <option value="Tubería">🔧 Tubería</option>
+            <option value="Señal">🚦 Señal</option>
+            <option value="Área general">🏭 Área general</option>
+            <option value="Equipo">🔩 Equipo</option>
+          </select>
+        </div>
+        <div class="field"><label>Hallazgo relacionado</label><input id="foto_hall" type="text" placeholder="H-001"></div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:12px">
+        <label class="btn btn-primary" style="flex:1;justify-content:center;cursor:pointer">
+          📷 Cámara
+          <input type="file" accept="image/*" capture="environment" id="inp-camera" style="display:none" onchange="handleFoto(this)">
+        </label>
+        <label class="btn btn-ghost" style="flex:1;justify-content:center;cursor:pointer">
+          🖼️ Galería
+          <input type="file" accept="image/*" id="inp-gallery" style="display:none" onchange="handleFoto(this)">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Galería (<span id="foto-count-gal">0</span>)</h3></div>
+    <div class="card-body">
+      <div class="foto-grid" id="foto-gallery">
+        <div class="empty-state" id="foto-empty" style="grid-column:span 3; padding:24px">
+          <div class="ico">📷</div><p>Sin fotos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════ PÁGINA: REPORTE ═════════════════════════ -->
+<div class="page" id="pg-reporte">
+  <div class="page-header">
+    <div class="page-title">Reporte Final</div>
+    <div class="page-sub">Resumen ejecutivo del estudio</div>
+  </div>
+
+  <div style="display:flex; gap:8px; margin-bottom:14px">
+    <button class="btn btn-green btn-sm" onclick="window.print()" style="flex:1;justify-content:center">🖨️ Imprimir</button>
+    <button class="btn btn-primary btn-sm" onclick="exportJSON()" style="flex:1;justify-content:center">📤 Exportar JSON</button>
+    <button class="btn btn-ghost btn-sm" onclick="importJSON()" style="flex:1;justify-content:center">📥 Importar</button>
+  </div>
+
+  <div id="reporte-body"></div>
+</div>
+
+</main><!-- /main -->
+
+<!-- BOTTOM TAB BAR -->
+<nav class="tabbar">
+  <button class="tab-btn active" id="tab-inicio" onclick="goPage('inicio')">
+    <span class="tab-icon">🏠</span><span class="tab-label">Inicio</span>
+  </button>
+  <button class="tab-btn" id="tab-config" onclick="goPage('config')">
+    <span class="tab-icon">⚙️</span><span class="tab-label">Config</span>
+  </button>
+  <button class="tab-btn" id="tab-lv" onclick="goPage('lv')">
+    <span class="tab-icon">✅</span><span class="tab-label">Verific.</span>
+  </button>
+  <button class="tab-btn" id="tab-hall" onclick="goPage('hall')">
+    <span class="tab-icon">📋</span><span class="tab-label">Hallazgos</span>
+    <span class="tab-badge" id="badge-hall" style="display:none">0</span>
+  </button>
+  <button class="tab-btn" id="tab-fotos" onclick="goPage('fotos')">
+    <span class="tab-icon">📸</span><span class="tab-label">Fotos</span>
+    <span class="tab-badge" id="badge-fotos" style="display:none">0</span>
+  </button>
+  <button class="tab-btn" id="tab-reporte" onclick="goPage('reporte'); buildReporte()">
+    <span class="tab-icon">📊</span><span class="tab-label">Reporte</span>
+  </button>
+</nav>
+
+<!-- MODAL FOTO AMPLIADA -->
+<div class="modal-wrap" id="modal-foto">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <h3 id="mf-title">Foto</h3>
+      <button class="modal-close" onclick="closeModal('modal-foto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <img id="mf-img" src="" style="width:100%;border-radius:6px;max-height:60vh;object-fit:contain">
+      <div id="mf-info" style="margin-top:10px; font-size:12px; color:var(--smoke); line-height:1.8"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXTRA ITEM -->
+<div class="modal-wrap" id="modal-extra">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-head">
+      <h3 id="me-title">Agregar elemento</h3>
+      <button class="modal-close" onclick="closeModal('modal-extra')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid cols-1" id="me-fields"></div>
+      <div class="flex-end">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-extra')">Cancelar</button>
+        <button class="btn btn-primary btn-sm" onclick="saveExtra()">Agregar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT INPUT -->
+<input type="file" id="inp-import" accept=".json" style="display:none" onchange="doImport(this)">
+
+<!-- SNACKBAR -->
+<div class="snack" id="snack"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ════════════════════════════════════════════════════════════════════════════
+const S = {
+  datos: {},
+  cfg: {
+    areas:  [],   // {id, nombre, activ, riesgo, aplica, extra}
+    sust:   [],
+    tub:    [],
+    senal:  [],
+  },
+  lvSen: {},   // id -> {est, foto, obs}
+  lvTub: {},   // id -> {color, contenido, flecha, foto, obs}
+  hallazgos: [],
+  fotos: [],
+  fotoCounter: 1,
+};
+
+let extraTarget = null;
+
+// ════════════════════════════════════════════════════════════════════════════
+// CATÁLOGOS MAESTROS
+// ════════════════════════════════════════════════════════════════════════════
+const AREAS_MASTER = [
+  {id:"a01",n:"Tratamiento de Agua / Clarificado",    a:"Filtrado y purificación de agua de pozo",           r:"Químico / Eléctrico"},
+  {id:"a02",n:"Jarabe Simple",                         a:"Preparación de jarabe con azúcar",                  r:"Mecánico / Eléctrico"},
+  {id:"a03",n:"Jarabe Terminado",                      a:"Mezcla con concentrados",                           r:"Químico / Eléctrico"},
+  {id:"a04",n:"Carbonatación / Enfriamiento",          a:"Mezcla con CO₂ y amoniaco",                        r:"Químico / Presión"},
+  {id:"a05",n:"Líneas de Embotellado",                 a:"Llenado y sellado de envases",                      r:"Mecánico / Eléctrico"},
+  {id:"a06",n:"Empacado y Paletizado",                 a:"Empaque y preparación para distribución",           r:"Mecánico"},
+  {id:"a07",n:"Calderas",                              a:"Generación de vapor y agua caliente",               r:"Presión / Temperatura / Incendio"},
+  {id:"a08",n:"Compresor de Amoniaco",                 a:"Sistema de refrigeración industrial",               r:"Químico / Presión"},
+  {id:"a09",n:"Casa de Fuerza / Subestación Eléctrica",a:"Distribución eléctrica general",                   r:"Eléctrico / Incendio"},
+  {id:"a10",n:"Estación de Carburación",               a:"Carga de gas L.P. a montacargas",                   r:"Incendio / Explosión"},
+  {id:"a11",n:"Almacén de Productos Químicos",         a:"Almacenamiento de sustancias peligrosas",           r:"Químico / Incendio"},
+  {id:"a12",n:"Almacén de Residuos Peligrosos",        a:"Resguardo temporal de residuos peligrosos",         r:"Químico / Biológico"},
+  {id:"a13",n:"PTAI — Planta Trat. Aguas Industriales",a:"Tratamiento de aguas residuales de proceso",       r:"Biológico / Químico"},
+  {id:"a14",n:"PTAR — Planta Trat. Aguas Residuales",  a:"Tratamiento final de aguas residuales",             r:"Biológico"},
+  {id:"a15",n:"Almacén de Producto Terminado",         a:"Almacenaje de cajas y pallets",                     r:"Mecánico / Incendio"},
+  {id:"a16",n:"Almacén General de Refacciones",        a:"Resguardo de refacciones y materiales",             r:"Mecánico"},
+  {id:"a17",n:"Taller Mecánico / Eléctrico",           a:"Mantenimiento de equipos",                          r:"Mecánico / Eléctrico / Incendio"},
+  {id:"a18",n:"Laboratorio de Calidad",                a:"Control de calidad de proceso y producto",          r:"Químico / Biológico"},
+  {id:"a19",n:"Oficinas Administrativas",              a:"Actividades administrativas generales",             r:"Eléctrico"},
+  {id:"a20",n:"Comedor / Cocina",                      a:"Preparación y consumo de alimentos",                r:"Incendio / Gas"},
+  {id:"a21",n:"Línea de Garrafón (agua CIEL)",         a:"Llenado y sellado de garrafones",                   r:"Mecánico / Eléctrico"},
+  {id:"a22",n:"Compactadora de Envases",               a:"Compactación de envase no retornable",              r:"Mecánico / Eléctrico"},
+  {id:"a23",n:"Área de Carga y Descarga / Andén",      a:"Recepción y despacho de mercancía",                r:"Mecánico / Tránsito"},
+  {id:"a24",n:"Vigilancia / Caseta de Entrada",        a:"Control de acceso y seguridad",                    r:"Bajo"},
+  {id:"a25",n:"CEDIS / Centro de Distribución",        a:"Distribución de producto a rutas",                  r:"Mecánico / Tránsito"},
+];
+
+const SUST_MASTER = [
+  {id:"s01",n:"Gas L.P. (Propano-Butano) — Estación Carburación",  t:"Tanque vertical",   c:"5,000 L",   p:"28.13",u:"Estación carburación",color:"Amarillo",r:"Inflamable / Explosivo"},
+  {id:"s02",n:"Gas L.P. — Calderas",      t:"Tanque horizontal",   c:"500 L",    p:"—",  u:"Área Calderas",       color:"Amarillo",r:"Inflamable / Explosivo"},
+  {id:"s03",n:"Gas L.P. — Comedor",       t:"Tanque horizontal",   c:"500 L",    p:"—",  u:"Área Comedor",        color:"Amarillo",r:"Inflamable / Explosivo"},
+  {id:"s04",n:"Diésel",                   t:"Tanque subterráneo",  c:"1,000 L",  p:"—",  u:"Planta emergencia",   color:"Amarillo",r:"Inflamable"},
+  {id:"s05",n:"Biorec 550",               t:"Tanque aéreo",        c:"30,000 L", p:"—",  u:"Área Calderas",       color:"Amarillo",r:"Inflamable"},
+  {id:"s06",n:"Amoniaco Anhídrido (NH₃)", t:"Tanque horizontal",   c:"4,352 L",  p:"12", u:"Sala de máquinas",    color:"Amarillo",r:"Tóxico / Presión"},
+  {id:"s07",n:"Bióxido de Carbono (CO₂)", t:"Tanque criogénico",   c:"44,000 kg",p:"—",  u:"Exterior planta",     color:"Amarillo",r:"Asfixiante / Presión"},
+  {id:"s08",n:"Sosa Cáustica (NaOH)",     t:"Tanque plástico",     c:"25,000 L", p:"—",  u:"Almacén químicos",    color:"Amarillo",r:"Corrosivo"},
+  {id:"s09",n:"Ácido Sulfúrico (H₂SO₄)",  t:"Tanque con dique",    c:"1,000 L",  p:"—",  u:"PTAI",                color:"Amarillo",r:"Corrosivo"},
+  {id:"s10",n:"Ácido Fosfórico (H₃PO₄)",  t:"Tanque con dique",    c:"1,000 L",  p:"—",  u:"Tratamiento Agua",    color:"Amarillo",r:"Corrosivo"},
+  {id:"s11",n:"Cloro (hipoclorito sodio)", t:"Tanque plástico",     c:"500 L",    p:"—",  u:"Tratamiento de Agua", color:"Amarillo",r:"Oxidante / Corrosivo"},
+  {id:"s12",n:"Ácido Cítrico",            t:"Contenedor IBC",      c:"1,000 L",  p:"—",  u:"Almacén químicos",    color:"Amarillo",r:"Irritante"},
+  {id:"s13",n:"Alcohol etílico (etanol)", t:"Tambor metálico",     c:"200 L",    p:"—",  u:"Laboratorio",         color:"Amarillo",r:"Inflamable"},
+  {id:"s14",n:"Lubricantes / aceites",    t:"Tambores / cubetas",  c:"Varios",   p:"—",  u:"Taller / Almacén",    color:"Amarillo",r:"Inflamable"},
+];
+
+const TUB_MASTER = [
+  // CI
+  {id:"t01",n:"Sistema fijo CI — red general",         req:"ROJO",     cat:"CI"},
+  {id:"t02",n:"Mangueras / gabinetes CI",              req:"ROJO",     cat:"CI"},
+  {id:"t03",n:"Hidrantes exteriores",                  req:"ROJO",     cat:"CI"},
+  {id:"t04",n:"Tomas siamesas",                        req:"ROJO",     cat:"CI"},
+  {id:"t05",n:"Descarga bombas contra incendio",       req:"ROJO",     cat:"CI"},
+  // Peligrosos
+  {id:"t06",n:"Gas L.P. — Calderas",                   req:"AMARILLO", cat:"PEL"},
+  {id:"t07",n:"Gas L.P. — Comedor",                    req:"AMARILLO", cat:"PEL"},
+  {id:"t08",n:"Gas L.P. — Estación Carburación",       req:"AMARILLO", cat:"PEL"},
+  {id:"t09",n:"Amoniaco líquido (alta presión)",       req:"AMARILLO", cat:"PEL"},
+  {id:"t10",n:"Amoniaco gas (baja presión)",           req:"AMARILLO", cat:"PEL"},
+  {id:"t11",n:"CO₂ — bióxido de carbono",             req:"AMARILLO", cat:"PEL"},
+  {id:"t12",n:"Vapor de proceso (calderas)",           req:"AMARILLO", cat:"PEL"},
+  {id:"t13",n:"Agua caliente de proceso",              req:"AMARILLO", cat:"PEL"},
+  {id:"t14",n:"Sosa cáustica (NaOH)",                  req:"AMARILLO", cat:"PEL"},
+  {id:"t15",n:"Ácido sulfúrico (H₂SO₄)",               req:"AMARILLO", cat:"PEL"},
+  {id:"t16",n:"Ácido fosfórico (H₃PO₄)",               req:"AMARILLO", cat:"PEL"},
+  {id:"t17",n:"Soluciones CIP (limpieza en sitio)",    req:"AMARILLO", cat:"PEL"},
+  {id:"t18",n:"Aire comprimido",                       req:"AMARILLO", cat:"PEL"},
+  {id:"t19",n:"Biorec 550 / combustible",              req:"AMARILLO", cat:"PEL"},
+  {id:"t20",n:"Diésel — planta de emergencia",         req:"AMARILLO", cat:"PEL"},
+  // No peligrosos
+  {id:"t21",n:"Agua tratada — proceso",                req:"VERDE",    cat:"NOPEL"},
+  {id:"t22",n:"Agua de servicios generales",           req:"VERDE",    cat:"NOPEL"},
+  {id:"t23",n:"Agua potable",                          req:"VERDE",    cat:"NOPEL"},
+  {id:"t24",n:"Agua fría — refrigeración",             req:"VERDE",    cat:"NOPEL"},
+  {id:"t25",n:"Jarabe simple",                         req:"VERDE",    cat:"NOPEL"},
+  {id:"t26",n:"Jarabe terminado",                      req:"VERDE",    cat:"NOPEL"},
+  {id:"t27",n:"Bebida terminada — llenado",            req:"VERDE",    cat:"NOPEL"},
+  {id:"t28",n:"Aire estéril",                          req:"VERDE",    cat:"NOPEL"},
+  {id:"t29",n:"Agua CIEL — Garrafón",                  req:"VERDE",    cat:"NOPEL"},
+];
+
+const SENAL_MASTER = [
+  {id:"sn01",n:"Ruta de evacuación",                              t:"Informativa emergencia", a:"Todas las áreas"},
+  {id:"sn02",n:"Salida de emergencia",                            t:"Informativa emergencia", a:"Puertas de emergencia"},
+  {id:"sn03",n:"Punto de reunión / Zona segura",                  t:"Informativa emergencia", a:"Exterior / Todas"},
+  {id:"sn04",n:"Extintor (señal de ubicación)",                   t:"Contra incendio",        a:"Todas las áreas"},
+  {id:"sn05",n:"Gabinete manguera CI",                            t:"Contra incendio",        a:"Áreas con CI"},
+  {id:"sn06",n:"Estación manual de alarma (FIRE)",                t:"Contra incendio",        a:"Todas las áreas"},
+  {id:"sn07",n:"Hidrante / Toma siamesa",                        t:"Contra incendio",        a:"Perímetro / CI"},
+  {id:"sn08",n:"Regadera de emergencia / lavajos",               t:"Informativa emergencia", a:"Áreas con químicos"},
+  {id:"sn09",n:"Botiquín de primeros auxilios",                   t:"Informativa emergencia", a:"Todas las áreas"},
+  {id:"sn10",n:"Camilla (señal de ubicación)",                    t:"Informativa emergencia", a:"Todas las áreas"},
+  {id:"sn11",n:"Salvavidas",                                      t:"Informativa emergencia", a:"PTAI / cuerpos de agua"},
+  {id:"sn12",n:"Kit de control de derrames (rojo/blanco)",       t:"Contra incendio",        a:"Áreas con químicos"},
+  {id:"sn13",n:"Uso obligatorio de EPP general",                  t:"Obligación",             a:"Accesos a proceso"},
+  {id:"sn14",n:"Uso obligatorio de casco",                        t:"Obligación",             a:"Taller / Mantenimiento"},
+  {id:"sn15",n:"Uso obligatorio de lentes de seguridad",         t:"Obligación",             a:"Taller / Lab / Proceso"},
+  {id:"sn16",n:"Uso obligatorio de tapones auditivos",           t:"Obligación",             a:"Áreas de alto ruido"},
+  {id:"sn17",n:"Uso obligatorio de guantes",                     t:"Obligación",             a:"Áreas con químicos"},
+  {id:"sn18",n:"Obligatorio usar pasamanos",                     t:"Obligación",             a:"Todas las escaleras"},
+  {id:"sn19",n:"Paso de montacargas",                            t:"Precaución",             a:"Pasillos / Almacenes"},
+  {id:"sn20",n:"Precaución — Riesgo eléctrico",                  t:"Precaución",             a:"Tableros / Centros de carga"},
+  {id:"sn21",n:"Señalización de voltaje (127V / 220V)",          t:"Precaución",             a:"Tableros / Contactos"},
+  {id:"sn22",n:"Precaución — Espacio confinado",                 t:"Precaución",             a:"Tanques / Fosos"},
+  {id:"sn23",n:"Precaución — Superficie caliente",               t:"Precaución",             a:"Calderas / Vapor"},
+  {id:"sn24",n:"Precaución — Carga suspendida",                  t:"Precaución",             a:"Áreas con grúas"},
+  {id:"sn25",n:"Precaución — Atrapamiento",                      t:"Precaución",             a:"Equipos con partes móviles"},
+  {id:"sn26",n:"Prohibido el paso — solo personal autorizado",   t:"Prohibición",            a:"Áreas restringidas"},
+  {id:"sn27",n:"No corra en las escaleras (circular rojo/blanco)",t:"Prohibición",           a:"Todas las escaleras"},
+  {id:"sn28",n:"Prohibido fumar",                                t:"Prohibición",            a:"Áreas inflamables"},
+  {id:"sn29",n:"Prohibido soldar o cortar",                      t:"Prohibición",            a:"Áreas con riesgo incendio"},
+  {id:"sn30",n:"Prohibido el uso de celular",                    t:"Prohibición",            a:"Riesgo eléctrico / proceso"},
+  {id:"sn31",n:"Velocidad máxima (km/h)",                        t:"Prohibición",            a:"Circulación interna"},
+  {id:"sn32",n:"Tablero código de colores tuberías",             t:"Informativa",            a:"Áreas de proceso"},
+  {id:"sn33",n:"Señalamientos en español (equipos importados)",  t:"Precaución",             a:"Equipos importados"},
+  {id:"sn34",n:"Instrucciones de alarma en español",            t:"Informativa",            a:"Estaciones de alarma"},
+];
+
+const LV_SEN_DATA = [
+  {sec:"REQUISITOS GENERALES"},
+  {id:"lsen01",txt:"Capacitación a trabajadores sobre interpretación de señalización"},
+  {id:"lsen02",txt:"Mantenimiento que asegure visibilidad y legibilidad en todo momento"},
+  {id:"lsen03",txt:"Señales ubicadas de manera que puedan ser observadas e interpretadas por los trabajadores a los que están destinadas"},
+  {id:"lsen04",txt:"Dimensiones de señales: S ≥ L²/2000 para distancias de 5 a 50 m"},
+  {id:"lsen05",txt:"Para distancias < 5 m el área mínima de señal es de 125 cm²"},
+  {id:"lsen06",txt:"Para distancias > 50 m el área mínima de señal es de 12,500 cm²"},
+  {id:"lsen07",txt:"Señales visibles desde el punto más alejado del área"},
+  {id:"lsen08",txt:"Eficacia de señales no disminuida por concurrencia de otros avisos o mensajes"},
+  {id:"lsen09",txt:"Señales no obstruidas por objetos que impidan su observación o legibilidad"},
+  {sec:"COLORES Y FORMAS DE SEÑALES"},
+  {id:"lsen10",txt:"Señales de obligación, precaución e información tienen el color de seguridad cubriendo ≥50% de su superficie"},
+  {id:"lsen11",txt:"PROHIBICIÓN: circular, fondo blanco, bandas roja, símbolo negro"},
+  {id:"lsen12",txt:"OBLIGACIÓN: circular, fondo azul, símbolo blanco"},
+  {id:"lsen13",txt:"PRECAUCIÓN: triangular, fondo amarillo, banda y símbolo negro"},
+  {id:"lsen14",txt:"EQUIPO CONTRA INCENDIO: cuadrada/rectangular, fondo rojo"},
+  {id:"lsen15",txt:"SALIDA DE EMERGENCIA / PRIMEROS AUXILIOS: rectangular, fondo verde"},
+  {sec:"SEÑALES DE EMERGENCIA"},
+  {id:"lsen16",txt:"Rutas de evacuación señalizadas en todas las áreas"},
+  {id:"lsen17",txt:"Salidas de emergencia señalizadas en todas las puertas de emergencia"},
+  {id:"lsen18",txt:"Zona segura / Punto de reunión visible y correctamente ubicado"},
+  {id:"lsen19",txt:"Extintores con señal informativa (fondo ROJO)"},
+  {id:"lsen20",txt:"Gabinetes de manguera CI señalizados"},
+  {id:"lsen21",txt:"Estaciones manuales de alarma (FIRE) señalizadas"},
+  {id:"lsen22",txt:"Hidrantes / tomas siamesas señalizadas en ROJO con blanco"},
+  {id:"lsen23",txt:"Kits de control de derrames señalizados en ROJO con blanco (NO en verde)"},
+  {id:"lsen24",txt:"Equipos de primeros auxilios (camillas, botiquines) señalizados en VERDE/blanco"},
+  {id:"lsen25",txt:"Salvavidas señalizados"},
+  {id:"lsen26",txt:"Regaderas de emergencia / lavajos señalizados"},
+  {sec:"SEÑALES DE OBLIGACIÓN"},
+  {id:"lsen27",txt:"Señales de USO DE EPP en accesos a cada área que lo requiere"},
+  {id:"lsen28",txt:"Señales OBLIGATORIO USAR PASAMANOS en todas las escaleras"},
+  {id:"lsen29",txt:"Señales de PASO DE MONTACARGAS en zonas de tráfico"},
+  {id:"lsen30",txt:"Señales de RIESGO ELÉCTRICO en centros de carga y tableros"},
+  {id:"lsen31",txt:"Señalización de VOLTAJE (127V ó 220V) en tableros, conductos y contactos"},
+  {id:"lsen32",txt:"Señales de ESPACIO CONFINADO en entradas a espacios confinados"},
+  {id:"lsen33",txt:"Señales de SUPERFICIE CALIENTE en equipos pertinentes"},
+  {id:"lsen34",txt:"Señalamientos de equipos importados traducidos al ESPAÑOL"},
+  {id:"lsen35",txt:"Instrucciones de botoneras / alarmas en ESPAÑOL"},
+  {sec:"SEÑALES PROHIBITIVAS"},
+  {id:"lsen36",txt:"PROHIBIDO EL PASO en áreas restringidas (circular, fondo blanco, banda roja)"},
+  {id:"lsen37",txt:"PROHIBIDO EL PASO en escalas fijas"},
+  {id:"lsen38",txt:"PROHIBIDO SOLDAR O CORTAR en áreas de riesgo de incendio"},
+  {id:"lsen39",txt:"PROHIBIDO FUMAR donde aplica"},
+  {id:"lsen40",txt:"PROHIBIDO USO DE CELULAR donde aplica"},
+  {id:"lsen41",txt:"VELOCIDAD MÁXIMA para vehículos internos"},
+  {sec:"CÓDIGO DE COLORES"},
+  {id:"lsen42",txt:"Existe código de colores formal para tuberías visible en áreas de proceso"},
+  {id:"lsen43",txt:"Tableros del código de colores en lugares visibles"},
+  {id:"lsen44",txt:"Personal conoce e interpreta el código de colores de tuberías"},
+  {sec:"CAPACITACIÓN"},
+  {id:"lsen45",txt:"Programa de capacitación en señalización e identificación de tuberías"},
+  {id:"lsen46",txt:"Integrantes de la CSH capacitados en señalización"},
+  {id:"lsen47",txt:"Evidencias documentales de capacitación impartida"},
+  {id:"lsen48",txt:"Brigadas de emergencia capacitadas en colores de seguridad e identificación de tuberías"},
+];
+
+// ════════════════════════════════════════════════════════════════════════════
+// NAVEGACIÓN
+// ════════════════════════════════════════════════════════════════════════════
+function goPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  document.getElementById('pg-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showLVTab(which) {
+  const sen = document.getElementById('lv-sen-panel');
+  const tub = document.getElementById('lv-tub-panel');
+  const btnSen = document.getElementById('lvtab-sen');
+  const btnTub = document.getElementById('lvtab-tub');
+  if (which === 'sen') {
+    sen.style.display = 'block'; tub.style.display = 'none';
+    btnSen.style.background = 'var(--blue-m)'; btnSen.style.color = '#fff'; btnSen.style.borderColor = 'var(--blue-m)';
+    btnTub.style.background = ''; btnTub.style.color = ''; btnTub.style.borderColor = '';
+  } else {
+    sen.style.display = 'none'; tub.style.display = 'block';
+    btnTub.style.background = 'var(--red)'; btnTub.style.color = '#fff'; btnTub.style.borderColor = 'var(--red)';
+    btnSen.style.background = ''; btnSen.style.color = ''; btnSen.style.borderColor = '';
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// DATOS GENERALES
+// ════════════════════════════════════════════════════════════════════════════
+function saveDatos() {
+  ['d_razon','d_rfc','d_imss','d_dom','d_mun','d_est','d_giro','d_riesgo',
+   'd_trab','d_turnos','d_fvisita','d_felab','d_elab','d_consultora',
+   'd_permiso','d_rev','d_obs'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) S.datos[id] = el.value;
+  });
+  const plant = S.datos.d_razon || 'Sin planta';
+  document.getElementById('topbar-plant').textContent = plant.substring(0,22) + (plant.length > 22 ? '…' : '');
+}
+
+function loadDatos() {
+  Object.keys(S.datos).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = S.datos[id] || '';
+  });
+  const plant = S.datos.d_razon || 'Sin planta';
+  document.getElementById('topbar-plant').textContent = plant.substring(0,22) + (plant.length > 22 ? '…' : '');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// CATÁLOGOS — INICIALIZAR
+// ════════════════════════════════════════════════════════════════════════════
+function initConfig() {
+  // Si no hay configuración guardada, cargar los masters con aplica=true
+  if (!S.cfg.areas.length)  S.cfg.areas  = AREAS_MASTER.map(x=>({...x, aplica:true, extra:false}));
+  if (!S.cfg.sust.length)   S.cfg.sust   = SUST_MASTER.map(x=>({...x, aplica:true, extra:false}));
+  if (!S.cfg.tub.length)    S.cfg.tub    = TUB_MASTER.map(x=>({...x, aplica:true, extra:false}));
+  if (!S.cfg.senal.length)  S.cfg.senal  = SENAL_MASTER.map(x=>({...x, aplica:true, extra:false}));
+  renderCatalog('areas');
+  renderCatalog('sust');
+  renderCatalog('tub');
+  renderCatalog('senal');
+}
+
+function renderCatalog(cat) {
+  const containerId = `cat-${cat}-list`;
+  const container = document.getElementById(containerId);
+  const items = S.cfg[cat];
+  container.innerHTML = '';
+
+  // Para tuberías, agrupar por categoría
+  if (cat === 'tub') {
+    const groups = {};
+    items.forEach(item => {
+      const g = item.cat || 'OTROS';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(item);
+    });
+    const order = ['CI','PEL','NOPEL','OTROS'];
+    const labels = {CI:'🔴 Contra Incendio — ROJO', PEL:'🟡 Fluidos Peligrosos — AMARILLO', NOPEL:'🟢 Fluidos No Peligrosos — VERDE', OTROS:'➕ Adicionales'};
+    const bgs = {CI:'var(--red-d)',PEL:'#7A5C00',NOPEL:'var(--green-d)',OTROS:'var(--ink-2)'};
+    order.forEach(g => {
+      if (!groups[g] || !groups[g].length) return;
+      const hdr = document.createElement('div');
+      hdr.className = 'cat-section-hdr';
+      hdr.style.background = bgs[g] || 'var(--ink-2)';
+      hdr.textContent = labels[g] || g;
+      container.appendChild(hdr);
+      groups[g].forEach(item => container.appendChild(makeCatItem(item, cat)));
+    });
+  } else if (cat === 'senal') {
+    // Agrupar por tipo
+    const groups = {};
+    items.forEach(item => {
+      const g = item.t || 'Otros';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(item);
+    });
+    Object.keys(groups).forEach(g => {
+      const hdr = document.createElement('div');
+      hdr.className = 'cat-section-hdr';
+      hdr.textContent = g;
+      container.appendChild(hdr);
+      groups[g].forEach(item => container.appendChild(makeCatItem(item, cat)));
+    });
+  } else {
+    items.forEach(item => container.appendChild(makeCatItem(item, cat)));
+  }
+
+  updateCatCount(cat);
+}
+
+function makeCatItem(item, cat) {
+  const div = document.createElement('div');
+  div.className = 'cat-item';
+  div.innerHTML = `
+    <div class="cat-toggle ${item.aplica ? 'on' : 'off'}" onclick="toggleCatItem('${cat}','${item.id}',this)">
+      ${item.aplica ? '✓' : ''}
+    </div>
+    <div class="cat-info">
+      <div class="cat-name">${item.n || item.nombre || item.desc || ''}</div>
+      <div class="cat-meta">${buildMeta(item, cat)}</div>
+    </div>`;
+  return div;
+}
+
+function buildMeta(item, cat) {
+  if (cat === 'areas') return `${item.a || ''} · <span style="font-size:10px;color:var(--ink-3)">${item.r || ''}</span>`;
+  if (cat === 'sust')  return `${item.t || ''} · ${item.c || ''} · ${item.u || ''}`;
+  if (cat === 'tub') {
+    const colorDot = item.req === 'ROJO' ? 'dot-rojo' : item.req === 'AMARILLO' ? 'dot-amarillo' : 'dot-verde';
+    return `<span class="color-dot ${colorDot}"></span>${item.req || ''} · ${item.cat === 'CI' ? '<span class="tag-ci">CI</span>' : item.cat === 'PEL' ? '<span class="tag-pel">PELIGROSO</span>' : '<span class="tag-nopel">NO PELIGROSO</span>'}`;
+  }
+  if (cat === 'senal') return `${item.a || ''}`;
+  return '';
+}
+
+function toggleCatItem(cat, id, el) {
+  const item = S.cfg[cat].find(x => x.id === id);
+  if (!item) return;
+  item.aplica = !item.aplica;
+  el.classList.toggle('on', item.aplica);
+  el.classList.toggle('off', !item.aplica);
+  el.textContent = item.aplica ? '✓' : '';
+  updateCatCount(cat);
+}
+
+function updateCatCount(cat) {
+  const n = S.cfg[cat].filter(x => x.aplica).length;
+  const total = S.cfg[cat].length;
+  const el = document.getElementById(`cnt-${cat}`);
+  if (el) el.textContent = `${n}/${total}`;
+}
+
+function saveConfig() {
+  // Redibujar LVs con los ítems que aplican
+  initLVSen();
+  initLVTub();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// AGREGAR EXTRAS AL CATÁLOGO
+// ════════════════════════════════════════════════════════════════════════════
+const extraConfigs = {
+  areas: {
+    title: 'Agregar Área',
+    fields: [
+      {id:'ex_nombre', label:'Nombre del Área', type:'text', req:true},
+      {id:'ex_activ',  label:'Actividad Principal', type:'text'},
+      {id:'ex_riesgo', label:'Riesgo Principal', type:'text'},
+    ],
+    build: () => {
+      const n = document.getElementById('ex_nombre').value.trim();
+      if (!n) return null;
+      const id = 'ax' + Date.now();
+      return {id, n, a:document.getElementById('ex_activ').value.trim(), r:document.getElementById('ex_riesgo').value.trim(), aplica:true, extra:true};
+    }
+  },
+  sust: {
+    title: 'Agregar Sustancia',
+    fields: [
+      {id:'ex_nombre', label:'Nombre de la Sustancia', type:'text', req:true},
+      {id:'ex_tipo',   label:'Tipo de Recipiente', type:'text'},
+      {id:'ex_cap',    label:'Capacidad', type:'text'},
+      {id:'ex_ubic',   label:'Ubicación', type:'text'},
+      {id:'ex_riesgo', label:'Tipo de Riesgo', type:'text'},
+    ],
+    build: () => {
+      const n = document.getElementById('ex_nombre').value.trim();
+      if (!n) return null;
+      const id = 'sx' + Date.now();
+      return {id, n, t:document.getElementById('ex_tipo').value.trim(), c:document.getElementById('ex_cap').value.trim(), u:document.getElementById('ex_ubic').value.trim(), r:document.getElementById('ex_riesgo').value.trim(), color:'Amarillo', p:'—', aplica:true, extra:true, cat:'PEL'};
+    }
+  },
+  tub: {
+    title: 'Agregar Tubería / Fluido',
+    fields: [
+      {id:'ex_nombre', label:'Descripción del Fluido / Tubería', type:'text', req:true},
+      {id:'ex_color',  label:'Color Requerido', type:'select', opts:['ROJO','AMARILLO','VERDE']},
+      {id:'ex_cat',    label:'Categoría', type:'select', opts:['CI','PEL','NOPEL']},
+    ],
+    build: () => {
+      const n = document.getElementById('ex_nombre').value.trim();
+      if (!n) return null;
+      const id = 'tx' + Date.now();
+      return {id, n, req:document.getElementById('ex_color').value, cat:document.getElementById('ex_cat').value, aplica:true, extra:true};
+    }
+  },
+  senal: {
+    title: 'Agregar Señalamiento',
+    fields: [
+      {id:'ex_nombre', label:'Descripción del Señalamiento', type:'text', req:true},
+      {id:'ex_tipo',   label:'Tipo de Señal', type:'select', opts:['Informativa emergencia','Contra incendio','Obligación','Precaución','Prohibición','Informativa']},
+      {id:'ex_area',   label:'Área de Aplicación', type:'text'},
+    ],
+    build: () => {
+      const n = document.getElementById('ex_nombre').value.trim();
+      if (!n) return null;
+      const id = 'snx' + Date.now();
+      return {id, n, t:document.getElementById('ex_tipo').value, a:document.getElementById('ex_area').value.trim(), aplica:true, extra:true};
+    }
+  },
+};
+
+function addCatExtra(cat) {
+  extraTarget = cat;
+  const cfg = extraConfigs[cat];
+  document.getElementById('me-title').textContent = cfg.title;
+  const fieldsDiv = document.getElementById('me-fields');
+  fieldsDiv.innerHTML = cfg.fields.map(f => {
+    if (f.type === 'select') {
+      return `<div class="field"><label>${f.label}</label><select id="${f.id}">${f.opts.map(o=>`<option>${o}</option>`).join('')}</select></div>`;
+    }
+    return `<div class="field"><label>${f.label}${f.req?' *':''}</label><input id="${f.id}" type="text"></div>`;
+  }).join('');
+  openModal('modal-extra');
+}
+
+function saveExtra() {
+  if (!extraTarget) return;
+  const item = extraConfigs[extraTarget].build();
+  if (!item) { showSnack('⚠ El nombre es obligatorio'); return; }
+  S.cfg[extraTarget].push(item);
+  renderCatalog(extraTarget);
+  closeModal('modal-extra');
+  showSnack('✓ Elemento agregado');
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// LV SEÑALIZACIÓN
+// ════════════════════════════════════════════════════════════════════════════
+const STATUS_CYCLE = ['PENDIENTE','CUMPLE','NO CUMPLE','N/A'];
+const STATUS_STYLES = {
+  'CUMPLE':    'pill-cumple',
+  'NO CUMPLE': 'pill-nocumple',
+  'N/A':       'pill-na',
+  'PENDIENTE': 'pill-pendiente',
+};
+
+function initLVSen() {
+  const tbody = document.getElementById('lv-sen-tbody');
+  tbody.innerHTML = '';
+  let num = 0;
+  LV_SEN_DATA.forEach(item => {
+    if (item.sec) {
+      const tr = document.createElement('tr');
+      tr.className = 'lv-sec-row';
+      tr.innerHTML = `<td colspan="5">${item.sec}</td>`;
+      tbody.appendChild(tr);
+    } else {
+      num++;
+      if (!S.lvSen[item.id]) S.lvSen[item.id] = {est:'PENDIENTE', foto:'', obs:''};
+      const v = S.lvSen[item.id];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="text-align:center;color:var(--smoke);font-family:'DM Mono',monospace;font-size:11px">${num}</td>
+        <td style="font-size:12px;line-height:1.4">${item.txt}</td>
+        <td>
+          <button class="status-pill ${STATUS_STYLES[v.est] || 'pill-pendiente'}"
+            onclick="cycleLVSen('${item.id}',this)">${v.est}</button>
+        </td>
+        <td><input class="lv-foto mono" value="${v.foto}" placeholder="FOTO-001"
+          onchange="S.lvSen['${item.id}'].foto=this.value"></td>
+        <td><input class="lv-obs" value="${v.obs}" placeholder="Obs..."
+          onchange="S.lvSen['${item.id}'].obs=this.value"></td>`;
+      tbody.appendChild(tr);
+    }
+  });
+  updateStatsSen();
+}
+
+function cycleLVSen(id, btn) {
+  const cur = S.lvSen[id].est;
+  const idx = STATUS_CYCLE.indexOf(cur);
+  const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+  S.lvSen[id].est = next;
+  btn.textContent = next;
+  btn.className = 'status-pill ' + (STATUS_STYLES[next] || 'pill-pendiente');
+  updateStatsSen();
+}
+
+function updateStatsSen() {
+  const vals = Object.values(S.lvSen).map(v => v.est);
+  const cumple   = vals.filter(v => v === 'CUMPLE').length;
+  const nocumple = vals.filter(v => v === 'NO CUMPLE').length;
+  const na       = vals.filter(v => v === 'N/A').length;
+  const pend     = vals.filter(v => v === 'PENDIENTE').length;
+  const total    = cumple + nocumple + pend;
+  const pct      = total > 0 ? Math.round(cumple / total * 100) : 0;
+  document.getElementById('stats-sen').innerHTML = `
+    <div class="stat-chip stat-green"><div class="val">${cumple}</div><div class="lbl">Cumple</div></div>
+    <div class="stat-chip stat-red"><div class="val">${nocumple}</div><div class="lbl">No Cumple</div></div>
+    <div class="stat-chip stat-amber"><div class="val">${pend}</div><div class="lbl">Pendiente</div></div>
+    <div class="stat-chip stat-blue"><div class="val">${pct}%</div><div class="lbl">Cumplimiento</div></div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// LV TUBERÍAS
+// ════════════════════════════════════════════════════════════════════════════
+function initLVTub() {
+  const tbody = document.getElementById('lv-tub-tbody');
+  tbody.innerHTML = '';
+  // Solo tuberías que aplican
+  const active = S.cfg.tub.length ? S.cfg.tub.filter(x => x.aplica) : TUB_MASTER;
+  const catLabels = {CI:'🔴 Contra Incendio — ROJO', PEL:'🟡 Fluidos Peligrosos — AMARILLO', NOPEL:'🟢 Fluidos No Peligrosos — VERDE', OTROS:'➕ Adicionales'};
+  const catBgs = {CI:'var(--red)',PEL:'#B7950B',NOPEL:'var(--green)',OTROS:'var(--ink-2)'};
+
+  let prevCat = null;
+  let num = 0;
+  active.forEach(item => {
+    const cat = item.cat || 'OTROS';
+    if (cat !== prevCat) {
+      const tr = document.createElement('tr');
+      tr.className = 'lv-sec-row';
+      tr.innerHTML = `<td colspan="8" style="background:${catBgs[cat]||'var(--ink-2)'}">${catLabels[cat] || cat}</td>`;
+      tbody.appendChild(tr);
+      prevCat = cat;
+    }
+    num++;
+    if (!S.lvTub[item.id]) S.lvTub[item.id] = {color:'PENDIENTE', contenido:'PENDIENTE', flecha:'PENDIENTE', foto:'', obs:''};
+    const v = S.lvTub[item.id];
+    const req = item.req || '—';
+    const reqBg = req==='ROJO' ? 'var(--red-l)' : req==='AMARILLO' ? 'var(--yellow-l)' : req==='VERDE' ? 'var(--green-l)' : 'var(--cloud)';
+    const reqFg = req==='ROJO' ? 'var(--red)' : req==='AMARILLO' ? 'var(--yellow)' : req==='VERDE' ? 'var(--green)' : 'var(--smoke)';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="text-align:center;color:var(--smoke);font-family:'DM Mono',monospace;font-size:11px">${num}</td>
+      <td style="font-size:12px">${item.n}</td>
+      <td style="text-align:center;font-size:11px;font-weight:700;background:${reqBg};color:${reqFg}">${req}</td>
+      <td>${mkTubPill(item.id,'color',v.color)}</td>
+      <td>${mkTubPill(item.id,'contenido',v.contenido)}</td>
+      <td>${mkTubPill(item.id,'flecha',v.flecha)}</td>
+      <td><input class="lv-foto mono" value="${v.foto}" placeholder="FOTO-001"
+        onchange="S.lvTub['${item.id}'].foto=this.value"></td>
+      <td><input class="lv-obs" value="${v.obs}" placeholder="Obs..."
+        onchange="S.lvTub['${item.id}'].obs=this.value"></td>`;
+    tbody.appendChild(tr);
+  });
+  updateStatsTub();
+}
+
+function mkTubPill(id, field, val) {
+  return `<button class="status-pill ${STATUS_STYLES[val]||'pill-pendiente'}"
+    onclick="cycleLVTub('${id}','${field}',this)">${val}</button>`;
+}
+
+function cycleLVTub(id, field, btn) {
+  const cur = S.lvTub[id][field];
+  const idx = STATUS_CYCLE.indexOf(cur);
+  const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+  S.lvTub[id][field] = next;
+  btn.textContent = next;
+  btn.className = 'status-pill ' + (STATUS_STYLES[next] || 'pill-pendiente');
+  updateStatsTub();
+}
+
+function updateStatsTub() {
+  let cumple=0, nocumple=0, pend=0;
+  Object.values(S.lvTub).forEach(v => {
+    ['color','contenido','flecha'].forEach(f => {
+      if (v[f] === 'CUMPLE') cumple++;
+      else if (v[f] === 'NO CUMPLE') nocumple++;
+      else if (v[f] === 'PENDIENTE') pend++;
+    });
+  });
+  const total = cumple + nocumple + pend;
+  const pct = total > 0 ? Math.round(cumple / total * 100) : 0;
+  document.getElementById('stats-tub').innerHTML = `
+    <div class="stat-chip stat-green"><div class="val">${cumple}</div><div class="lbl">Cumple</div></div>
+    <div class="stat-chip stat-red"><div class="val">${nocumple}</div><div class="lbl">No Cumple</div></div>
+    <div class="stat-chip stat-amber"><div class="val">${pend}</div><div class="lbl">Pendiente</div></div>
+    <div class="stat-chip stat-blue"><div class="val">${pct}%</div><div class="lbl">Cumplimiento</div></div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// HALLAZGOS
+// ════════════════════════════════════════════════════════════════════════════
+function toggleNewHall() {
+  document.getElementById('new-hall-panel').classList.toggle('open');
+}
+
+function addHallazgo() {
+  const desc = document.getElementById('nh_desc').value.trim();
+  if (!desc) { showSnack('⚠ La descripción es obligatoria'); return; }
+  const folio = 'H-' + String(S.hallazgos.length + 1).padStart(3,'0');
+  S.hallazgos.push({
+    folio,
+    area:  document.getElementById('nh_area').value.trim(),
+    desc,
+    norma: document.getElementById('nh_norma').value.trim(),
+    prio:  document.getElementById('nh_prio').value,
+    foto:  document.getElementById('nh_foto').value.trim(),
+    accion:document.getElementById('nh_accion').value.trim(),
+    resp:  document.getElementById('nh_resp').value.trim(),
+    fecha: document.getElementById('nh_fecha').value,
+    estatus:'ABIERTO',
+  });
+  ['nh_area','nh_desc','nh_norma','nh_foto','nh_accion','nh_resp','nh_fecha'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('nh_prio').value = 'MEDIA';
+  document.getElementById('new-hall-panel').classList.remove('open');
+  renderHallazgos();
+  updateBadges();
+  showSnack('✓ Hallazgo ' + folio + ' registrado');
+}
+
+function renderHallazgos() {
+  const list   = document.getElementById('hall-list');
+  const empty  = document.getElementById('hall-empty');
+  list.innerHTML = '';
+  if (!S.hallazgos.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  S.hallazgos.forEach((h, i) => {
+    const div = document.createElement('div');
+    div.className = 'hallazgo-card';
+    const prioClass = 'prio-' + h.prio.toLowerCase();
+    const estClass  = h.estatus === 'ABIERTO' ? 'est-abierto' : h.estatus === 'EN PROCESO' ? 'est-proceso' : 'est-cerrado';
+    div.innerHTML = `
+      <div class="hallazgo-head" onclick="toggleHall(${i})">
+        <span class="h-folio">${h.folio}</span>
+        <span class="h-title">${h.desc.substring(0,60)}${h.desc.length>60?'…':''}</span>
+        <span class="prio-tag ${prioClass}">${h.prio}</span>
+        <span class="est-tag ${estClass}">${h.estatus}</span>
+        <span class="chevron" id="chev-${i}">▼</span>
+      </div>
+      <div class="hallazgo-body" id="hbody-${i}">
+        <div class="form-grid cols-1">
+          <div class="field"><label>Área</label><input type="text" value="${h.area||''}" onchange="S.hallazgos[${i}].area=this.value"></div>
+          <div class="field"><label>Norma / Requisito</label><input type="text" value="${h.norma||''}" onchange="S.hallazgos[${i}].norma=this.value"></div>
+          <div class="field"><label>Descripción</label><textarea onchange="S.hallazgos[${i}].desc=this.value">${h.desc}</textarea></div>
+          <div class="field"><label>Acción Correctiva</label><textarea onchange="S.hallazgos[${i}].accion=this.value">${h.accion||''}</textarea></div>
+        </div>
+        <div class="form-grid" style="margin-top:8px">
+          <div class="field"><label>Prioridad</label>
+            <select onchange="S.hallazgos[${i}].prio=this.value; renderHallazgos()">
+              <option value="ALTA"  ${h.prio==='ALTA'?'selected':''}>🔴 ALTA</option>
+              <option value="MEDIA" ${h.prio==='MEDIA'?'selected':''}>🟡 MEDIA</option>
+              <option value="BAJA"  ${h.prio==='BAJA'?'selected':''}>🟢 BAJA</option>
+            </select>
+          </div>
+          <div class="field"><label>Estatus</label>
+            <select onchange="S.hallazgos[${i}].estatus=this.value; renderHallazgos()">
+              <option value="ABIERTO"    ${h.estatus==='ABIERTO'?'selected':''}>🔴 ABIERTO</option>
+              <option value="EN PROCESO" ${h.estatus==='EN PROCESO'?'selected':''}>🟡 EN PROCESO</option>
+              <option value="CERRADO"    ${h.estatus==='CERRADO'?'selected':''}>🟢 CERRADO</option>
+            </select>
+          </div>
+          <div class="field"><label>Folio Foto</label><input type="text" value="${h.foto||''}" onchange="S.hallazgos[${i}].foto=this.value"></div>
+          <div class="field"><label>Fecha Límite</label><input type="date" value="${h.fecha||''}" onchange="S.hallazgos[${i}].fecha=this.value"></div>
+          <div class="field"><label>Responsable</label><input type="text" value="${h.resp||''}" onchange="S.hallazgos[${i}].resp=this.value"></div>
+        </div>
+        <div class="flex-end" style="margin-top:10px">
+          <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="removeHallazgo(${i})">🗑 Eliminar</button>
+        </div>
+      </div>`;
+    list.appendChild(div);
+  });
+  updateBadges();
+}
+
+function toggleHall(i) {
+  const body = document.getElementById('hbody-' + i);
+  const chev = document.getElementById('chev-' + i);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+  chev.textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+function removeHallazgo(i) {
+  if (!confirm('¿Eliminar este hallazgo?')) return;
+  S.hallazgos.splice(i, 1);
+  S.hallazgos.forEach((h, idx) => h.folio = 'H-' + String(idx+1).padStart(3,'0'));
+  renderHallazgos();
+  updateBadges();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// FOTOS
+// ════════════════════════════════════════════════════════════════════════════
+function handleFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const folio = document.getElementById('foto_folio').value.trim() || ('FOTO-' + String(S.fotoCounter).padStart(3,'0'));
+  const reader = new FileReader();
+  reader.onload = e => {
+    S.fotos.push({
+      folio,
+      area:  document.getElementById('foto_area').value.trim(),
+      desc:  document.getElementById('foto_desc').value.trim(),
+      tipo:  document.getElementById('foto_tipo').value,
+      hall:  document.getElementById('foto_hall').value.trim(),
+      data:  e.target.result,
+      name:  file.name,
+    });
+    S.fotoCounter++;
+    document.getElementById('foto_folio').value = 'FOTO-' + String(S.fotoCounter).padStart(3,'0');
+    renderFotos();
+    updateBadges();
+    input.value = '';
+    showSnack('✓ Foto ' + folio + ' agregada');
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderFotos() {
+  const gallery = document.getElementById('foto-gallery');
+  const empty   = document.getElementById('foto-empty');
+  gallery.innerHTML = '';
+  const n = S.fotos.length;
+  document.getElementById('foto-count-sub').textContent = n;
+  document.getElementById('foto-count-gal').textContent = n;
+  if (!n) { gallery.appendChild(empty); return; }
+  S.fotos.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'foto-thumb';
+    div.innerHTML = `
+      <img src="${f.data}" alt="${f.folio}" onclick="openFotoModal(${i})">
+      <div class="foto-label-overlay">${f.folio}</div>
+      <button class="foto-del" onclick="removeFoto(${i})" title="Eliminar">✕</button>`;
+    gallery.appendChild(div);
+  });
+}
+
+function openFotoModal(i) {
+  const f = S.fotos[i];
+  document.getElementById('mf-title').textContent = f.folio;
+  document.getElementById('mf-img').src = f.data;
+  document.getElementById('mf-info').innerHTML =
+    `<strong>Área:</strong> ${f.area||'—'}<br>
+     <strong>Tipo:</strong> ${f.tipo||'—'}<br>
+     <strong>Descripción:</strong> ${f.desc||'—'}<br>
+     <strong>Hallazgo:</strong> ${f.hall||'—'}`;
+  openModal('modal-foto');
+}
+
+function removeFoto(i) {
+  if (!confirm('¿Eliminar esta foto?')) return;
+  S.fotos.splice(i, 1);
+  renderFotos();
+  updateBadges();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// REPORTE FINAL
+// ════════════════════════════════════════════════════════════════════════════
+function buildReporte() {
+  const body = document.getElementById('reporte-body');
+  const d = S.datos;
+
+  // Calcular stats señalización
+  const lvSenVals = Object.values(S.lvSen).map(v => v.est);
+  const sCumple   = lvSenVals.filter(v => v === 'CUMPLE').length;
+  const sNoCumple = lvSenVals.filter(v => v === 'NO CUMPLE').length;
+  const sPend     = lvSenVals.filter(v => v === 'PENDIENTE').length;
+  const sTotal    = sCumple + sNoCumple + sPend;
+  const sPct      = sTotal > 0 ? Math.round(sCumple/sTotal*100) : 0;
+
+  // Calcular stats tuberías
+  let tCumple=0,tNoCumple=0,tPend=0;
+  Object.values(S.lvTub).forEach(v => ['color','contenido','flecha'].forEach(f => {
+    if (v[f]==='CUMPLE') tCumple++;
+    else if (v[f]==='NO CUMPLE') tNoCumple++;
+    else if (v[f]==='PENDIENTE') tPend++;
+  }));
+  const tTotal = tCumple + tNoCumple + tPend;
+  const tPct   = tTotal > 0 ? Math.round(tCumple/tTotal*100) : 0;
+
+  const hallAlta  = S.hallazgos.filter(h => h.prio==='ALTA').length;
+  const hallMedia = S.hallazgos.filter(h => h.prio==='MEDIA').length;
+  const hallBaja  = S.hallazgos.filter(h => h.prio==='BAJA').length;
+  const hallAbiertos = S.hallazgos.filter(h => h.estatus==='ABIERTO').length;
+
+  const areasActivas = S.cfg.areas.filter(x => x.aplica);
+  const sustActivas  = S.cfg.sust.filter(x => x.aplica);
+
+  function pctBar(pct, color) {
+    return `<div style="margin-top:4px"><div class="pbar-wrap" style="height:10px">
+      <div class="pbar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <span style="font-size:12px;font-weight:700;color:${color}">${pct}% cumplimiento</span></div>`;
+  }
+
+  body.innerHTML = `
+<!-- PORTADA -->
+<div class="card" style="border-top:4px solid var(--blue);text-align:center">
+  <div class="card-body" style="padding:28px 20px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--smoke);margin-bottom:8px;font-family:'DM Mono',monospace">ESTUDIO DE IMPLEMENTACIÓN</div>
+    <div style="font-size:28px;font-weight:700;color:var(--blue);font-family:'DM Mono',monospace;line-height:1">NOM-026-STPS-2008</div>
+    <div style="font-size:13px;color:var(--ink-3);margin-top:6px;margin-bottom:20px">Colores y Señales de Seguridad e Higiene · Identificación de Fluidos en Tuberías</div>
+    <div style="background:var(--panel);border-radius:8px;padding:16px;text-align:left">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px">
+        <div><span style="color:var(--smoke);font-weight:700">EMPRESA:</span><br>${d.d_razon||'—'}</div>
+        <div><span style="color:var(--smoke);font-weight:700">RFC:</span><br>${d.d_rfc||'—'}</div>
+        <div><span style="color:var(--smoke);font-weight:700">MUNICIPIO:</span><br>${d.d_mun||'—'}</div>
+        <div><span style="color:var(--smoke);font-weight:700">ESTADO:</span><br>${d.d_est||'—'}</div>
+        <div><span style="color:var(--smoke);font-weight:700">FECHA VISITA:</span><br>${d.d_fvisita||'—'}</div>
+        <div><span style="color:var(--smoke);font-weight:700">ELABORÓ:</span><br>${d.d_elab||'—'}</div>
+        <div><span style="color:var(--smoke);font-weight:700">CONSULTORA:</span><br>${d.d_consultora||'—'}</div>
+        <div><span style="color:var(--smoke);font-weight:700">PERMISO STPS:</span><br>${d.d_permiso||'—'}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RESUMEN EJECUTIVO -->
+<div class="report-section">
+  <h2>I. Resumen de Cumplimiento</h2>
+  <div class="stats-row" style="margin-bottom:12px">
+    <div class="stat-chip stat-blue"><div class="val">${sPct}%</div><div class="lbl">Señalización</div></div>
+    <div class="stat-chip stat-blue"><div class="val">${tPct}%</div><div class="lbl">Tuberías</div></div>
+    <div class="stat-chip stat-red"><div class="val">${hallAbiertos}</div><div class="lbl">Hallazgos Abiertos</div></div>
+    <div class="stat-chip stat-amber"><div class="val">${S.fotos.length}</div><div class="lbl">Fotos</div></div>
+  </div>
+  <div class="card">
+    <div class="card-body" style="display:grid;gap:12px">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:700">🚦 Señalización de seguridad e higiene</span>
+          <span style="font-size:12px;color:var(--smoke)">${sCumple} CUMPLE · ${sNoCumple} NO CUMPLE · ${sPend} PENDIENTE</span>
+        </div>
+        ${pctBar(sPct,'var(--green)')}
+      </div>
+      <div class="divider" style="margin:0"></div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:700">🔧 Identificación de tuberías y fluidos</span>
+          <span style="font-size:12px;color:var(--smoke)">${tCumple} CUMPLE · ${tNoCumple} NO CUMPLE · ${tPend} PENDIENTE</span>
+        </div>
+        ${pctBar(tPct,'var(--blue-m)')}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HALLAZGOS -->
+<div class="report-section">
+  <h2>II. Hallazgos y No Conformidades (${S.hallazgos.length} total)</h2>
+  <div style="display:flex;gap:8px;margin-bottom:12px">
+    <div class="stat-chip stat-red" style="flex:1"><div class="val">${hallAlta}</div><div class="lbl">Prioridad Alta</div></div>
+    <div class="stat-chip stat-amber" style="flex:1"><div class="val">${hallMedia}</div><div class="lbl">Prioridad Media</div></div>
+    <div class="stat-chip stat-green" style="flex:1"><div class="val">${hallBaja}</div><div class="lbl">Prioridad Baja</div></div>
+    <div class="stat-chip stat-blue" style="flex:1"><div class="val">${S.hallazgos.filter(h=>h.estatus==='CERRADO').length}</div><div class="lbl">Cerrados</div></div>
+  </div>
+  ${S.hallazgos.length ? `
+  <div class="card">
+    <div class="lv-wrap">
+      <table class="report-table">
+        <thead><tr><th>Folio</th><th>Área</th><th>Descripción</th><th>Prioridad</th><th>Estatus</th><th>Fecha Límite</th><th>Responsable</th></tr></thead>
+        <tbody>
+          ${S.hallazgos.map(h => `<tr>
+            <td style="font-family:'DM Mono',monospace;font-size:11px">${h.folio}</td>
+            <td style="font-size:11px">${h.area||'—'}</td>
+            <td style="font-size:11px">${h.desc}</td>
+            <td><span class="prio-tag prio-${h.prio.toLowerCase()}">${h.prio}</span></td>
+            <td><span class="est-tag ${h.estatus==='ABIERTO'?'est-abierto':h.estatus==='EN PROCESO'?'est-proceso':'est-cerrado'}">${h.estatus}</span></td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace">${h.fecha||'—'}</td>
+            <td style="font-size:11px">${h.resp||'—'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>` : '<div class="empty-state"><div class="ico">✅</div><p>Sin hallazgos registrados</p></div>'}
+</div>
+
+<!-- ÁREAS -->
+<div class="report-section">
+  <h2>III. Áreas Involucradas (${areasActivas.length})</h2>
+  <div class="card">
+    <div class="lv-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Área</th><th>Actividad Principal</th><th>Riesgo Principal</th></tr></thead>
+        <tbody>${areasActivas.map((a,i) => `<tr>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">${i+1}</td>
+          <td style="font-size:12px;font-weight:600">${a.n}</td>
+          <td style="font-size:11px">${a.a||'—'}</td>
+          <td style="font-size:11px">${a.r||'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SUSTANCIAS -->
+<div class="report-section">
+  <h2>IV. Sustancias Peligrosas y Combustibles (${sustActivas.length})</h2>
+  <div class="card">
+    <div class="lv-wrap">
+      <table class="report-table">
+        <thead><tr><th>#</th><th>Sustancia</th><th>Recipiente</th><th>Capacidad</th><th>Ubicación</th><th>Riesgo</th></tr></thead>
+        <tbody>${sustActivas.map((s,i) => `<tr>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">${i+1}</td>
+          <td style="font-size:12px;font-weight:600">${s.n}</td>
+          <td style="font-size:11px">${s.t||'—'}</td>
+          <td style="font-size:11px;font-family:'DM Mono',monospace">${s.c||'—'}</td>
+          <td style="font-size:11px">${s.u||'—'}</td>
+          <td style="font-size:11px">${s.r||'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- FOTOS -->
+${S.fotos.length ? `
+<div class="report-section">
+  <h2>V. Índice de Evidencia Fotográfica (${S.fotos.length})</h2>
+  <div class="card">
+    <div class="lv-wrap">
+      <table class="report-table">
+        <thead><tr><th>Folio</th><th>Área</th><th>Descripción</th><th>Tipo</th><th>Hallazgo</th></tr></thead>
+        <tbody>${S.fotos.map(f => `<tr>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">${f.folio}</td>
+          <td style="font-size:11px">${f.area||'—'}</td>
+          <td style="font-size:11px">${f.desc||'—'}</td>
+          <td style="font-size:11px">${f.tipo||'—'}</td>
+          <td style="font-size:11px;font-family:'DM Mono',monospace">${f.hall||'—'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+  </div>
+</div>` : ''}
+
+<!-- OBSERVACIONES -->
+<div class="report-section">
+  <h2>VI. Observaciones Generales y Conclusiones</h2>
+  <div class="card">
+    <div class="card-body">
+      <div class="field"><label>Observaciones del Estudio</label>
+        <textarea id="rep_obs" style="min-height:120px" onchange="S.repObs=this.value" placeholder="Escriba las observaciones generales, conclusiones y recomendaciones del estudio...">${S.repObs||''}</textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FIRMAS -->
+<div class="report-section">
+  <h2>VII. Firmas de Responsabilidad</h2>
+  <div class="card">
+    <div class="card-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;text-align:center">
+      ${['Responsable del Estudio','Responsable de Seguridad','Representante del Patrón'].map((r,i) => `
+      <div style="border-top:2px solid var(--mist);padding-top:10px;margin-top:40px">
+        <div style="font-size:11px;font-weight:700;color:var(--smoke);letter-spacing:.4px;text-transform:uppercase">${r}</div>
+        ${i===0 && d.d_elab ? `<div style="font-size:12px;margin-top:4px;color:var(--ink)">${d.d_elab}</div>` : ''}
+      </div>`).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// GUARDAR / CARGAR / EXPORTAR
+// ════════════════════════════════════════════════════════════════════════════
+function saveToLocal() {
+  saveDatos();
+  try {
+    const payload = JSON.stringify(S);
+    localStorage.setItem('nom026_data', payload);
+    showSnack('✓ Guardado en el dispositivo');
+  } catch(e) {
+    showSnack('⚠ Error al guardar: ' + e.message);
+  }
+}
+
+function loadFromLocal() {
+  try {
+    const raw = localStorage.getItem('nom026_data');
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    Object.assign(S, saved);
+    loadDatos();
+    initConfig();
+    initLVSen();
+    initLVTub();
+    renderHallazgos();
+    renderFotos();
+    updateBadges();
+  } catch(e) {
+    console.warn('No se pudo cargar el estado guardado', e);
+  }
+}
+
+function exportJSON() {
+  saveDatos();
+  const str = JSON.stringify(S, null, 2);
+  const blob = new Blob([str], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const empresa = (S.datos.d_razon || 'NOM026').replace(/[^a-zA-Z0-9]/g,'_').substring(0,20);
+  const fecha = new Date().toISOString().substring(0,10);
+  a.href = url; a.download = `${empresa}_NOM026_${fecha}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showSnack('✓ Archivo exportado');
+}
+
+function importJSON() { document.getElementById('inp-import').click(); }
+function doImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (confirm('¿Cargar este estudio? Se reemplazarán los datos actuales.')) {
+        Object.assign(S, data);
+        loadDatos(); initConfig(); initLVSen(); initLVTub();
+        renderHallazgos(); renderFotos(); updateBadges();
+        showSnack('✓ Estudio cargado exitosamente');
+      }
+    } catch { showSnack('⚠ Archivo JSON inválido'); }
+    input.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// MODALES
+// ════════════════════════════════════════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.addEventListener('click', e => {
+  document.querySelectorAll('.modal-wrap.open').forEach(m => {
+    if (e.target === m) m.classList.remove('open');
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════════════════════════
+function updateBadges() {
+  const nh = S.hallazgos.length;
+  const nf = S.fotos.length;
+  const bh = document.getElementById('badge-hall');
+  const bf = document.getElementById('badge-fotos');
+  bh.textContent = nh; bh.style.display = nh ? '' : 'none';
+  bf.textContent = nf; bf.style.display = nf ? '' : 'none';
+}
+
+let snackTimer;
+function showSnack(msg) {
+  const el = document.getElementById('snack');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(snackTimer);
+  snackTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ARRANQUE
+// ════════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  loadFromLocal();
+  if (!S.cfg.areas.length) initConfig();
+  if (!Object.keys(S.lvSen).length) initLVSen();
+  initLVTub();
+  updateBadges();
+
+  // Auto-set fecha de hoy si está vacía
+  if (!S.datos.d_fvisita) {
+    const today = new Date().toISOString().substring(0,10);
+    const el = document.getElementById('d_fvisita');
+    if (el && !el.value) el.value = today;
+    const el2 = document.getElementById('d_felab');
+    if (el2 && !el2.value) el2.value = today;
+  }
+
+  // Auto-guardar cada 60 segundos
+  setInterval(saveToLocal, 60000);
+});
+</script>
+</body>
+</html>
