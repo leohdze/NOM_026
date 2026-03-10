@@ -196,17 +196,16 @@ body {
 .pbar-wrap { background: var(--cloud); border-radius: 20px; height: 8px; overflow: hidden; }
 .pbar-fill { height: 100%; border-radius: 20px; transition: width .5s ease; }
 
-/* ── LV TABLE ─────────────────────────────────────────── */
+/* ── LV TABLE — DESKTOP ──────────────────────────────── */
 .lv-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -16px; }
-.lv-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+.lv-table { width: 100%; border-collapse: collapse; min-width: 480px; }
 .lv-table th {
   background: var(--ink); color: #fff;
-  padding: 9px 12px; font-size: 10px; font-weight: 700;
-  letter-spacing: .5px; text-align: left;
-  white-space: nowrap;
+  padding: 9px 10px; font-size: 10px; font-weight: 700;
+  letter-spacing: .4px; text-align: left; white-space: nowrap;
 }
 .lv-table td {
-  padding: 8px 12px; border-bottom: 1px solid var(--cloud);
+  padding: 8px 10px; border-bottom: 1px solid var(--cloud);
   vertical-align: middle; font-size: 12px;
 }
 .lv-table tr:last-child td { border-bottom: none; }
@@ -214,24 +213,63 @@ body {
 .lv-sec-row td {
   background: var(--blue); color: #fff;
   font-size: 11px; font-weight: 700; letter-spacing: .4px;
-  padding: 7px 12px;
+  padding: 7px 10px;
 }
 .lv-sec-row:hover td { background: var(--blue) !important; }
 
+/* ── LV CARDS — MOBILE (< 600px) ───────────────────────
+   En pantallas pequeñas ocultamos la tabla y mostramos
+   tarjetas apiladas en su lugar.                        */
+.lv-card-list { display: none; }
+
+@media (max-width: 599px) {
+  .lv-wrap { display: none; }
+  .lv-card-list { display: block; }
+}
+
+.lv-card {
+  background: var(--white); border: 1px solid var(--mist);
+  border-radius: 8px; margin-bottom: 8px; overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.lv-card-sec {
+  background: var(--blue); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: .4px;
+  padding: 7px 12px;
+}
+.lv-card-body { padding: 10px 12px; }
+.lv-card-num  { font-family: 'DM Mono',monospace; font-size: 10px; color: var(--smoke); margin-bottom: 4px; }
+.lv-card-txt  { font-size: 12px; line-height: 1.45; color: var(--ink); margin-bottom: 8px; }
+.lv-card-row  { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+.lv-card-label{ font-size: 10px; font-weight: 700; color: var(--smoke); text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+.lv-card-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.lv-card-fields .field { gap: 3px; }
+.lv-card-fields .field label { font-size: 9px; }
+.lv-card-fields .field input { padding: 7px 8px; font-size: 12px; }
+.lv-card-fields .field.full { grid-column: span 2; }
+
+/* Tuberías: 3 pills en columna */
+.tub-pills { display: grid; grid-template-columns: 1fr; gap: 4px; }
+.tub-pill-row { display: flex; align-items: center; gap: 6px; }
+.tub-pill-row .lv-card-label { min-width: 80px; }
+
 .status-pill {
   display: inline-flex; align-items: center;
-  border-radius: 20px; padding: 4px 10px;
+  border-radius: 20px; padding: 5px 11px;
   font-size: 11px; font-weight: 700; white-space: nowrap;
   cursor: pointer; border: none; font-family: inherit;
-  transition: all .15s;
+  transition: all .15s; -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .pill-cumple   { background: var(--green-l); color: var(--green); }
 .pill-nocumple { background: var(--red-l);   color: var(--red);   }
 .pill-na       { background: var(--cloud);   color: var(--smoke); }
 .pill-pendiente{ background: var(--yellow-l);color: var(--yellow);}
 
-.lv-obs { border: 1px solid var(--mist); border-radius: 4px; padding: 5px 8px; font-size: 11px; font-family: inherit; width: 100%; min-width: 120px; }
+.lv-obs  { border: 1px solid var(--mist); border-radius: 4px; padding: 5px 8px; font-size: 11px; font-family: inherit; width: 100%; }
 .lv-foto { border: 1px solid var(--mist); border-radius: 4px; padding: 5px 8px; font-size: 11px; font-family: 'DM Mono', monospace; width: 88px; text-align: center; }
+
+/* ── CATALOG ITEMS — responsive ─────────────────────── */
 
 /* ── CATALOG ITEMS ────────────────────────────────────── */
 .cat-section-hdr {
@@ -239,32 +277,37 @@ body {
   padding: 8px 14px;
   background: var(--ink-2); color: #fff;
   font-size: 11px; font-weight: 700; letter-spacing: .4px;
+  flex-wrap: wrap;
 }
 .cat-item {
   display: flex; align-items: flex-start; gap: 10px;
-  padding: 10px 14px; border-bottom: 1px solid var(--cloud);
-  transition: background .1s;
+  padding: 11px 14px; border-bottom: 1px solid var(--cloud);
+  transition: background .1s; min-width: 0;
 }
 .cat-item:last-child { border-bottom: none; }
 .cat-item:hover { background: var(--panel); }
 .cat-toggle {
-  width: 22px; height: 22px; border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+  width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; margin-top: 1px;
   border: 2px solid var(--mist); background: var(--white);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 13px; transition: all .15s;
+  font-size: 14px; transition: all .15s;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
 .cat-toggle.on  { background: var(--green); border-color: var(--green); color: #fff; }
 .cat-toggle.off { background: var(--white); border-color: var(--mist); color: transparent; }
-.cat-info { flex: 1; }
-.cat-name { font-size: 13px; font-weight: 500; line-height: 1.3; }
-.cat-meta { font-size: 11px; color: var(--smoke); margin-top: 2px; }
+.cat-info { flex: 1; min-width: 0; }
+.cat-name { font-size: 13px; font-weight: 600; line-height: 1.4; word-break: break-word; }
+.cat-meta {
+  font-size: 11px; color: var(--smoke); margin-top: 3px;
+  line-height: 1.5; word-break: break-word; white-space: normal;
+}
 .cat-extra { font-size: 10px; font-family: 'DM Mono', monospace; }
 .color-dot {
-  display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 3px;
+  display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: middle;
 }
-.dot-rojo   { background: var(--red); }
+.dot-rojo     { background: var(--red); }
 .dot-amarillo { background: #D4AC0D; }
-.dot-verde  { background: var(--green); }
+.dot-verde    { background: var(--green); }
 
 /* ── ADD EXTRA ROW ────────────────────────────────────── */
 .add-extra-btn {
@@ -439,12 +482,74 @@ body {
 }
 .snack.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ── HALLAZGO FOTO INLINE ─────────────────────────────── */
+.hall-foto-section {
+  border-top: 1px solid var(--cloud); margin-top: 12px; padding-top: 12px;
+}
+.hall-foto-section h5 {
+  font-size: 11px; font-weight: 700; color: var(--smoke);
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px;
+}
+.hall-mini-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+}
+@media (max-width: 400px) {
+  .hall-mini-grid { grid-template-columns: repeat(3, 1fr); }
+}
+.hall-mini-thumb {
+  position: relative; aspect-ratio: 4/3; border-radius: 5px;
+  overflow: hidden; background: var(--cloud); border: 1px solid var(--mist);
+  cursor: pointer;
+}
+.hall-mini-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.hall-mini-folio {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.55); color: #fff; font-size: 8px;
+  font-family: 'DM Mono',monospace; padding: 2px 4px; text-align: center;
+}
+.hall-mini-del {
+  position: absolute; top: 2px; right: 2px;
+  background: rgba(192,57,43,.9); color: #fff; border: none;
+  border-radius: 50%; width: 16px; height: 16px; font-size: 9px;
+  cursor: pointer; display: none; align-items: center; justify-content: center;
+}
+.hall-mini-thumb:hover .hall-mini-del { display: flex; }
+.hall-add-foto {
+  aspect-ratio: 4/3; border: 2px dashed var(--mist); border-radius: 5px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--smoke); font-size: 10px; gap: 2px;
+  background: var(--white); transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.hall-add-foto:hover { border-color: var(--red); color: var(--red); background: var(--red-l); }
+.hall-add-foto .ico  { font-size: 18px; }
+
+/* Nuevo hallazgo: área de foto captura */
+.nh-foto-area {
+  border: 1px solid var(--mist); border-radius: 8px; overflow: hidden; margin-top: 10px;
+}
+.nh-foto-area-head {
+  background: var(--cloud); padding: 8px 12px;
+  font-size: 11px; font-weight: 700; color: var(--smoke);
+  text-transform: uppercase; letter-spacing: .4px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nh-foto-preview {
+  padding: 10px 12px;
+}
+.nh-preview-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 8px;
+}
+.nh-preview-empty { text-align: center; padding: 12px; color: var(--smoke); font-size: 11px; }
+
 @media (max-width: 480px) {
   .stats-row { grid-template-columns: repeat(2, 1fr); }
   .form-grid { grid-template-columns: 1fr; }
   .field.span2 { grid-column: span 1; }
   .main { padding: 12px 10px; }
   .foto-grid { grid-template-columns: repeat(3,1fr); }
+  .hall-mini-grid { grid-template-columns: repeat(3,1fr); }
+  .nh-preview-grid { grid-template-columns: repeat(3,1fr); }
 }
 @media print {
   .topbar,.tabbar,.btn,.foto-add-btn,.foto-del,.cat-toggle,.add-extra-btn { display: none !important; }
@@ -606,6 +711,8 @@ body {
           <tbody id="lv-sen-tbody"></tbody>
         </table>
       </div>
+      <!-- Vista tarjetas para móvil -->
+      <div class="lv-card-list" id="lv-sen-cards"></div>
     </div>
   </div>
 
@@ -628,6 +735,8 @@ body {
           <tbody id="lv-tub-tbody"></tbody>
         </table>
       </div>
+      <!-- Vista tarjetas para móvil -->
+      <div class="lv-card-list" id="lv-tub-cards"></div>
     </div>
   </div>
 </div>
@@ -652,14 +761,37 @@ body {
       <div class="field"><label>Prioridad</label>
         <select id="nh_prio"><option value="ALTA">🔴 ALTA</option><option value="MEDIA" selected>🟡 MEDIA</option><option value="BAJA">🟢 BAJA</option></select>
       </div>
-      <div class="field"><label>Folio(s) de Foto</label><input id="nh_foto" type="text" placeholder="FOTO-001"></div>
-      <div class="field span2"><label>Acción Correctiva Propuesta</label><textarea id="nh_accion" placeholder="Acción recomendada..."></textarea></div>
+      <div class="field"><label>Acción Correctiva</label><input id="nh_accion" type="text" placeholder="Acción recomendada"></div>
       <div class="field"><label>Responsable</label><input id="nh_resp" type="text"></div>
       <div class="field"><label>Fecha Límite</label><input id="nh_fecha" type="date"></div>
     </div>
-    <div class="flex-end">
-      <button class="btn btn-ghost btn-sm" onclick="toggleNewHall()">Cancelar</button>
-      <button class="btn btn-red btn-sm" onclick="addHallazgo()">✔ Guardar</button>
+
+    <!-- FOTOS DIRECTAS -->
+    <div class="nh-foto-area">
+      <div class="nh-foto-area-head">
+        <span>📸 Fotos de evidencia</span>
+        <span id="nh-foto-count" style="color:var(--blue-m)">0 fotos</span>
+      </div>
+      <div class="nh-foto-preview">
+        <div class="nh-preview-grid" id="nh-preview-grid">
+          <div class="nh-preview-empty" id="nh-preview-empty" style="grid-column:span 4">Sin fotos aún</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <label class="btn btn-red btn-sm" style="flex:1;justify-content:center;cursor:pointer">
+            📷 Cámara
+            <input type="file" accept="image/*" capture="environment" id="nh-inp-camera" style="display:none" onchange="handleNhFoto(this)">
+          </label>
+          <label class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;cursor:pointer">
+            🖼️ Galería
+            <input type="file" accept="image/*" id="nh-inp-gallery" style="display:none" onchange="handleNhFoto(this)">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex-end" style="margin-top:10px">
+      <button class="btn btn-ghost btn-sm" onclick="cancelNewHall()">Cancelar</button>
+      <button class="btn btn-red btn-sm" onclick="addHallazgo()">✔ Guardar Hallazgo</button>
     </div>
   </div>
 
@@ -1266,18 +1398,25 @@ const STATUS_STYLES = {
 
 function initLVSen() {
   const tbody = document.getElementById('lv-sen-tbody');
-  tbody.innerHTML = '';
+  const cards = document.getElementById('lv-sen-cards');
+  tbody.innerHTML = ''; cards.innerHTML = '';
   let num = 0;
   LV_SEN_DATA.forEach(item => {
     if (item.sec) {
+      // Tabla
       const tr = document.createElement('tr');
       tr.className = 'lv-sec-row';
       tr.innerHTML = `<td colspan="5">${item.sec}</td>`;
       tbody.appendChild(tr);
+      // Cards
+      const sec = document.createElement('div');
+      sec.className = 'lv-card-sec'; sec.textContent = item.sec;
+      cards.appendChild(sec);
     } else {
       num++;
       if (!S.lvSen[item.id]) S.lvSen[item.id] = {est:'PENDIENTE', foto:'', obs:''};
       const v = S.lvSen[item.id];
+      // — Tabla row —
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td style="text-align:center;color:var(--smoke);font-family:'DM Mono',monospace;font-size:11px">${num}</td>
@@ -1291,6 +1430,31 @@ function initLVSen() {
         <td><input class="lv-obs" value="${v.obs}" placeholder="Obs..."
           onchange="S.lvSen['${item.id}'].obs=this.value"></td>`;
       tbody.appendChild(tr);
+      // — Card móvil —
+      const card = document.createElement('div');
+      card.className = 'lv-card';
+      card.innerHTML = `
+        <div class="lv-card-body">
+          <div class="lv-card-num">${num}</div>
+          <div class="lv-card-txt">${item.txt}</div>
+          <div class="lv-card-row">
+            <span class="lv-card-label">Estatus:</span>
+            <button class="status-pill ${STATUS_STYLES[v.est]||'pill-pendiente'}"
+              onclick="cycleLVSenCard('${item.id}',this,'${item.id}-card-pill')"
+              id="${item.id}-card-pill">${v.est}</button>
+          </div>
+          <div class="lv-card-fields">
+            <div class="field"><label>Folio Foto</label>
+              <input class="lv-foto mono" value="${v.foto}" placeholder="FOTO-001"
+                onchange="S.lvSen['${item.id}'].foto=this.value;syncLVSenFoto('${item.id}',this.value)">
+            </div>
+            <div class="field full"><label>Observaciones</label>
+              <input class="lv-obs" value="${v.obs}" placeholder="Obs..."
+                onchange="S.lvSen['${item.id}'].obs=this.value">
+            </div>
+          </div>
+        </div>`;
+      cards.appendChild(card);
     }
   });
   updateStatsSen();
@@ -1303,7 +1467,25 @@ function cycleLVSen(id, btn) {
   S.lvSen[id].est = next;
   btn.textContent = next;
   btn.className = 'status-pill ' + (STATUS_STYLES[next] || 'pill-pendiente');
+  // sync card pill
+  const cardPill = document.getElementById(id + '-card-pill');
+  if (cardPill) { cardPill.textContent = next; cardPill.className = 'status-pill ' + (STATUS_STYLES[next]||'pill-pendiente'); }
   updateStatsSen();
+}
+
+function cycleLVSenCard(id, btn, btnId) {
+  const cur = S.lvSen[id].est;
+  const idx = STATUS_CYCLE.indexOf(cur);
+  const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+  S.lvSen[id].est = next;
+  btn.textContent = next;
+  btn.className = 'status-pill ' + (STATUS_STYLES[next] || 'pill-pendiente');
+  updateStatsSen();
+}
+
+function syncLVSenFoto(id, val) {
+  // sincronizar entre tabla y card
+  S.lvSen[id].foto = val;
 }
 
 function updateStatsSen() {
@@ -1326,21 +1508,22 @@ function updateStatsSen() {
 // ════════════════════════════════════════════════════════════════════════════
 function initLVTub() {
   const tbody = document.getElementById('lv-tub-tbody');
-  tbody.innerHTML = '';
-  // Solo tuberías que aplican
+  const cards = document.getElementById('lv-tub-cards');
+  tbody.innerHTML = ''; cards.innerHTML = '';
   const active = S.cfg.tub.length ? S.cfg.tub.filter(x => x.aplica) : TUB_MASTER;
   const catLabels = {CI:'🔴 Contra Incendio — ROJO', PEL:'🟡 Fluidos Peligrosos — AMARILLO', NOPEL:'🟢 Fluidos No Peligrosos — VERDE', OTROS:'➕ Adicionales'};
   const catBgs = {CI:'var(--red)',PEL:'#B7950B',NOPEL:'var(--green)',OTROS:'var(--ink-2)'};
-
-  let prevCat = null;
-  let num = 0;
+  let prevCat = null; let num = 0;
   active.forEach(item => {
     const cat = item.cat || 'OTROS';
     if (cat !== prevCat) {
       const tr = document.createElement('tr');
       tr.className = 'lv-sec-row';
-      tr.innerHTML = `<td colspan="8" style="background:${catBgs[cat]||'var(--ink-2)'}">${catLabels[cat] || cat}</td>`;
+      tr.innerHTML = `<td colspan="8" style="background:${catBgs[cat]||'var(--ink-2)'}">${catLabels[cat]||cat}</td>`;
       tbody.appendChild(tr);
+      const sec = document.createElement('div');
+      sec.className = 'lv-card-sec'; sec.style.background = catBgs[cat]||'var(--ink-2)';
+      sec.textContent = catLabels[cat]||cat; cards.appendChild(sec);
       prevCat = cat;
     }
     num++;
@@ -1349,6 +1532,8 @@ function initLVTub() {
     const req = item.req || '—';
     const reqBg = req==='ROJO' ? 'var(--red-l)' : req==='AMARILLO' ? 'var(--yellow-l)' : req==='VERDE' ? 'var(--green-l)' : 'var(--cloud)';
     const reqFg = req==='ROJO' ? 'var(--red)' : req==='AMARILLO' ? 'var(--yellow)' : req==='VERDE' ? 'var(--green)' : 'var(--smoke)';
+
+    // — Tabla row —
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td style="text-align:center;color:var(--smoke);font-family:'DM Mono',monospace;font-size:11px">${num}</td>
@@ -1362,7 +1547,59 @@ function initLVTub() {
       <td><input class="lv-obs" value="${v.obs}" placeholder="Obs..."
         onchange="S.lvTub['${item.id}'].obs=this.value"></td>`;
     tbody.appendChild(tr);
+
+    // — Card móvil —
+    const card = document.createElement('div');
+    card.className = 'lv-card';
+    card.innerHTML = `
+      <div class="lv-card-body">
+        <div class="lv-card-num">${num}</div>
+        <div class="lv-card-txt">${item.n}</div>
+        <div style="margin-bottom:6px">
+          <span style="display:inline-block;background:${reqBg};color:${reqFg};font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px">
+            Color requerido: ${req}
+          </span>
+        </div>
+        <div class="tub-pills">
+          <div class="tub-pill-row">
+            <span class="lv-card-label">Color aplic.:</span>
+            <button class="status-pill ${STATUS_STYLES[v.color]||'pill-pendiente'}"
+              onclick="cycleLVTubCard('${item.id}','color',this)">${v.color}</button>
+          </div>
+          <div class="tub-pill-row">
+            <span class="lv-card-label">Señal cont.:</span>
+            <button class="status-pill ${STATUS_STYLES[v.contenido]||'pill-pendiente'}"
+              onclick="cycleLVTubCard('${item.id}','contenido',this)">${v.contenido}</button>
+          </div>
+          <div class="tub-pill-row">
+            <span class="lv-card-label">Flecha dir.:</span>
+            <button class="status-pill ${STATUS_STYLES[v.flecha]||'pill-pendiente'}"
+              onclick="cycleLVTubCard('${item.id}','flecha',this)">${v.flecha}</button>
+          </div>
+        </div>
+        <div class="lv-card-fields" style="margin-top:8px">
+          <div class="field"><label>Folio Foto</label>
+            <input class="lv-foto mono" value="${v.foto}" placeholder="FOTO-001"
+              onchange="S.lvTub['${item.id}'].foto=this.value">
+          </div>
+          <div class="field full"><label>Observaciones</label>
+            <input class="lv-obs" value="${v.obs}" placeholder="Obs..."
+              onchange="S.lvTub['${item.id}'].obs=this.value">
+          </div>
+        </div>
+      </div>`;
+    cards.appendChild(card);
   });
+  updateStatsTub();
+}
+
+function cycleLVTubCard(id, field, btn) {
+  const cur = S.lvTub[id][field];
+  const idx = STATUS_CYCLE.indexOf(cur);
+  const next = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+  S.lvTub[id][field] = next;
+  btn.textContent = next;
+  btn.className = 'status-pill ' + (STATUS_STYLES[next] || 'pill-pendiente');
   updateStatsTub();
 }
 
@@ -1400,61 +1637,102 @@ function updateStatsTub() {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// HALLAZGOS
+// HALLAZGOS — con fotos integradas
 // ════════════════════════════════════════════════════════════════════════════
+let nhPendingFotos = []; // fotos del formulario "nuevo hallazgo" antes de guardar
+
 function toggleNewHall() {
-  document.getElementById('new-hall-panel').classList.toggle('open');
+  const panel = document.getElementById('new-hall-panel');
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) { cancelNewHall(); } else { panel.classList.add('open'); }
 }
+
+function cancelNewHall() {
+  document.getElementById('new-hall-panel').classList.remove('open');
+  nhPendingFotos = [];
+  renderNhPreview();
+  ['nh_area','nh_desc','nh_norma','nh_accion','nh_resp','nh_fecha'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('nh_prio').value = 'MEDIA';
+}
+
+// Captura foto desde el formulario de nuevo hallazgo — versión async/IDB (definida abajo)
+// (stub que llama a la versión async que está en la sección FOTOS)
 
 function addHallazgo() {
   const desc = document.getElementById('nh_desc').value.trim();
   if (!desc) { showSnack('⚠ La descripción es obligatoria'); return; }
   const folio = 'H-' + String(S.hallazgos.length + 1).padStart(3,'0');
+  const foliosFoto = nhPendingFotos.map(f => f.folio);
+
+  // Registrar metadata de fotos pendientes en S.fotos (imagen ya está en IDB)
+  nhPendingFotos.forEach(f => {
+    // Evitar duplicados si ya se registró en handleNhFoto
+    if (!S.fotos.find(x => x.folio === f.folio)) {
+      S.fotos.push({ folio: f.folio, area: document.getElementById('nh_area').value.trim(),
+        desc: `Evidencia hallazgo ${folio}`, tipo: 'No conformidad', hall: folio, name: f.name || '' });
+    } else {
+      // Actualizar hall reference
+      const ex = S.fotos.find(x => x.folio === f.folio);
+      if (ex) ex.hall = folio;
+    }
+  });
+
   S.hallazgos.push({
     folio,
-    area:  document.getElementById('nh_area').value.trim(),
+    area:   document.getElementById('nh_area').value.trim(),
     desc,
-    norma: document.getElementById('nh_norma').value.trim(),
-    prio:  document.getElementById('nh_prio').value,
-    foto:  document.getElementById('nh_foto').value.trim(),
-    accion:document.getElementById('nh_accion').value.trim(),
-    resp:  document.getElementById('nh_resp').value.trim(),
-    fecha: document.getElementById('nh_fecha').value,
+    norma:  document.getElementById('nh_norma').value.trim(),
+    prio:   document.getElementById('nh_prio').value,
+    fotos:  foliosFoto,
+    accion: document.getElementById('nh_accion').value.trim(),
+    resp:   document.getElementById('nh_resp').value.trim(),
+    fecha:  document.getElementById('nh_fecha').value,
     estatus:'ABIERTO',
   });
-  ['nh_area','nh_desc','nh_norma','nh_foto','nh_accion','nh_resp','nh_fecha'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('nh_prio').value = 'MEDIA';
-  document.getElementById('new-hall-panel').classList.remove('open');
+
+  cancelNewHall();
   renderHallazgos();
+  renderFotos();
   updateBadges();
-  showSnack('✓ Hallazgo ' + folio + ' registrado');
+  saveToLocal();
+  showSnack(`✓ ${folio} guardado${foliosFoto.length ? ' con ' + foliosFoto.length + ' foto(s)' : ''}`);
 }
 
 function renderHallazgos() {
-  const list   = document.getElementById('hall-list');
-  const empty  = document.getElementById('hall-empty');
+  const list  = document.getElementById('hall-list');
+  const empty = document.getElementById('hall-empty');
   list.innerHTML = '';
   if (!S.hallazgos.length) { empty.style.display = 'block'; return; }
   empty.style.display = 'none';
+
   S.hallazgos.forEach((h, i) => {
     const div = document.createElement('div');
     div.className = 'hallazgo-card';
     const prioClass = 'prio-' + h.prio.toLowerCase();
     const estClass  = h.estatus === 'ABIERTO' ? 'est-abierto' : h.estatus === 'EN PROCESO' ? 'est-proceso' : 'est-cerrado';
+    const nFotos    = S.fotos.filter(f => f.hall === h.folio || (h.fotos||[]).includes(f.folio)).length;
+
     div.innerHTML = `
       <div class="hallazgo-head" onclick="toggleHall(${i})">
         <span class="h-folio">${h.folio}</span>
-        <span class="h-title">${h.desc.substring(0,60)}${h.desc.length>60?'…':''}</span>
+        <span class="h-title">${h.desc.substring(0,55)}${h.desc.length>55?'…':''}</span>
+        ${nFotos ? `<span style="font-size:10px;background:var(--blue-l);color:var(--blue);padding:2px 6px;border-radius:3px;font-weight:700;white-space:nowrap">📷${nFotos}</span>` : ''}
         <span class="prio-tag ${prioClass}">${h.prio}</span>
         <span class="est-tag ${estClass}">${h.estatus}</span>
         <span class="chevron" id="chev-${i}">▼</span>
       </div>
       <div class="hallazgo-body" id="hbody-${i}">
         <div class="form-grid cols-1">
-          <div class="field"><label>Área</label><input type="text" value="${h.area||''}" onchange="S.hallazgos[${i}].area=this.value"></div>
-          <div class="field"><label>Norma / Requisito</label><input type="text" value="${h.norma||''}" onchange="S.hallazgos[${i}].norma=this.value"></div>
-          <div class="field"><label>Descripción</label><textarea onchange="S.hallazgos[${i}].desc=this.value">${h.desc}</textarea></div>
-          <div class="field"><label>Acción Correctiva</label><textarea onchange="S.hallazgos[${i}].accion=this.value">${h.accion||''}</textarea></div>
+          <div class="field"><label>Área</label>
+            <input type="text" value="${escHtml(h.area||'')}" onchange="S.hallazgos[${i}].area=this.value"></div>
+          <div class="field"><label>Norma / Requisito</label>
+            <input type="text" value="${escHtml(h.norma||'')}" onchange="S.hallazgos[${i}].norma=this.value"></div>
+          <div class="field"><label>Descripción</label>
+            <textarea onchange="S.hallazgos[${i}].desc=this.value">${escHtml(h.desc)}</textarea></div>
+          <div class="field"><label>Acción Correctiva</label>
+            <textarea onchange="S.hallazgos[${i}].accion=this.value">${escHtml(h.accion||'')}</textarea></div>
         </div>
         <div class="form-grid" style="margin-top:8px">
           <div class="field"><label>Prioridad</label>
@@ -1471,15 +1749,33 @@ function renderHallazgos() {
               <option value="CERRADO"    ${h.estatus==='CERRADO'?'selected':''}>🟢 CERRADO</option>
             </select>
           </div>
-          <div class="field"><label>Folio Foto</label><input type="text" value="${h.foto||''}" onchange="S.hallazgos[${i}].foto=this.value"></div>
-          <div class="field"><label>Fecha Límite</label><input type="date" value="${h.fecha||''}" onchange="S.hallazgos[${i}].fecha=this.value"></div>
-          <div class="field"><label>Responsable</label><input type="text" value="${h.resp||''}" onchange="S.hallazgos[${i}].resp=this.value"></div>
+          <div class="field"><label>Responsable</label>
+            <input type="text" value="${escHtml(h.resp||'')}" onchange="S.hallazgos[${i}].resp=this.value"></div>
+          <div class="field"><label>Fecha Límite</label>
+            <input type="date" value="${h.fecha||''}" onchange="S.hallazgos[${i}].fecha=this.value"></div>
+        </div>
+        <div class="hall-foto-section">
+          <h5>📸 Fotos relacionadas</h5>
+          <div class="hall-mini-grid" id="hall-fotos-grid-${i}"></div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <label class="btn btn-red btn-sm" style="flex:1;justify-content:center;cursor:pointer">
+              📷 Cámara
+              <input type="file" accept="image/*" capture="environment" style="display:none"
+                onchange="handleHallFoto(this,${i})">
+            </label>
+            <label class="btn btn-ghost btn-sm" style="flex:1;justify-content:center;cursor:pointer">
+              🖼️ Galería
+              <input type="file" accept="image/*" style="display:none"
+                onchange="handleHallFoto(this,${i})">
+            </label>
+          </div>
         </div>
         <div class="flex-end" style="margin-top:10px">
           <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="removeHallazgo(${i})">🗑 Eliminar</button>
         </div>
       </div>`;
     list.appendChild(div);
+    renderHallFotosGrid(i, h.fotos || []);
   });
   updateBadges();
 }
@@ -1497,73 +1793,302 @@ function removeHallazgo(i) {
   S.hallazgos.splice(i, 1);
   S.hallazgos.forEach((h, idx) => h.folio = 'H-' + String(idx+1).padStart(3,'0'));
   renderHallazgos();
-  updateBadges();
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function removeNhFoto(i) {
+  nhPendingFotos.splice(i, 1);
+  renderNhPreview();
+}
+
+async function openNhPreviewModal(i) {
+  const f = nhPendingFotos[i];
+  document.getElementById('mf-title').textContent = f.folio;
+  document.getElementById('mf-img').src = '';
+  document.getElementById('mf-info').innerHTML = '<strong>Foto pendiente de guardar con el hallazgo</strong>';
+  openModal('modal-foto');
+  const data = imgCache[f.folio] || await idbGet(f.folio);
+  if (data) document.getElementById('mf-img').src = data;
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// FOTOS
+// INDEXEDDB — almacén de imágenes separado del estado
 // ════════════════════════════════════════════════════════════════════════════
-function handleFoto(input) {
+let idb = null;
+const IDB_NAME = 'nom026_fotos';
+const IDB_STORE = 'imagenes';
+
+function openIDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(IDB_STORE))
+        db.createObjectStore(IDB_STORE, { keyPath: 'folio' });
+    };
+    req.onsuccess = e => { idb = e.target.result; res(idb); };
+    req.onerror   = e => { console.error('IDB error', e); rej(e); };
+  });
+}
+
+function idbPut(folio, dataUrl) {
+  return new Promise((res, rej) => {
+    const tx = idb.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put({ folio, dataUrl });
+    tx.oncomplete = res; tx.onerror = rej;
+  });
+}
+
+function idbGet(folio) {
+  return new Promise((res, rej) => {
+    const tx = idb.transaction(IDB_STORE, 'readonly');
+    const req = tx.objectStore(IDB_STORE).get(folio);
+    req.onsuccess = e => res(e.target.result?.dataUrl || null);
+    req.onerror   = rej;
+  });
+}
+
+function idbDelete(folio) {
+  return new Promise((res, rej) => {
+    const tx = idb.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).delete(folio);
+    tx.oncomplete = res; tx.onerror = rej;
+  });
+}
+
+function idbGetAll() {
+  return new Promise((res, rej) => {
+    const tx = idb.transaction(IDB_STORE, 'readonly');
+    const req = tx.objectStore(IDB_STORE).getAll();
+    req.onsuccess = e => res(e.target.result || []);
+    req.onerror   = rej;
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// COMPRESIÓN DE IMAGEN con Canvas
+// ════════════════════════════════════════════════════════════════════════════
+// Devuelve dataURL JPEG comprimido, máx 1280px lado largo, calidad 0.78
+function compressImage(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1280;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w >= h) { h = Math.round(h * MAX / w); w = MAX; }
+          else        { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        res(canvas.toDataURL('image/jpeg', 0.78));
+      };
+      img.onerror = rej;
+      img.src = ev.target.result;
+    };
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// FOTOS — con compresión + IndexedDB
+// ════════════════════════════════════════════════════════════════════════════
+
+// Cache en memoria de miniaturas ya cargadas
+const imgCache = {};
+
+async function handleFoto(input) {
   const file = input.files[0];
   if (!file) return;
   const folio = document.getElementById('foto_folio').value.trim() || ('FOTO-' + String(S.fotoCounter).padStart(3,'0'));
-  const reader = new FileReader();
-  reader.onload = e => {
+  showSnack('⏳ Procesando foto...');
+  try {
+    const dataUrl = await compressImage(file);
+    const kb = Math.round(dataUrl.length * 0.75 / 1024);
+    // Guardar metadata en estado (sin la imagen)
     S.fotos.push({
       folio,
       area:  document.getElementById('foto_area').value.trim(),
       desc:  document.getElementById('foto_desc').value.trim(),
       tipo:  document.getElementById('foto_tipo').value,
       hall:  document.getElementById('foto_hall').value.trim(),
-      data:  e.target.result,
       name:  file.name,
     });
+    // Guardar imagen en IDB
+    await idbPut(folio, dataUrl);
+    imgCache[folio] = dataUrl;
     S.fotoCounter++;
     document.getElementById('foto_folio').value = 'FOTO-' + String(S.fotoCounter).padStart(3,'0');
     renderFotos();
     updateBadges();
-    input.value = '';
-    showSnack('✓ Foto ' + folio + ' agregada');
-  };
-  reader.readAsDataURL(file);
+    showSnack(`✓ ${folio} guardada (${kb} KB)`);
+  } catch(e) {
+    showSnack('⚠ Error al procesar la foto');
+    console.error(e);
+  }
+  input.value = '';
+}
+
+// Variante para fotos desde hallazgos
+async function handleHallFotoCore(file, hallFolio, areaStr) {
+  const folio = 'FOTO-' + String(S.fotoCounter).padStart(3,'0');
+  showSnack('⏳ Procesando foto...');
+  const dataUrl = await compressImage(file);
+  const kb = Math.round(dataUrl.length * 0.75 / 1024);
+  S.fotos.push({ folio, area: areaStr, desc: `Evidencia ${hallFolio}`,
+                 tipo: 'No conformidad', hall: hallFolio, name: file.name });
+  await idbPut(folio, dataUrl);
+  imgCache[folio] = dataUrl;
+  S.fotoCounter++;
+  showSnack(`📷 ${folio} adjunta (${kb} KB)`);
+  return folio;
+}
+
+async function handleNhFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  try {
+    const folio = await handleHallFotoCore(file, '—', document.getElementById('nh_area').value.trim());
+    nhPendingFotos.push({ folio });
+    renderNhPreview();
+  } catch(e) { showSnack('⚠ Error al procesar la foto'); }
+  input.value = '';
+}
+
+async function handleHallFoto(input, hallIdx) {
+  const file = input.files[0];
+  if (!file) return;
+  const h = S.hallazgos[hallIdx];
+  try {
+    const folio = await handleHallFotoCore(file, h.folio, h.area || '');
+    if (!h.fotos) h.fotos = [];
+    h.fotos.push(folio);
+    renderHallFotosGrid(hallIdx, h.fotos);
+    renderFotos();
+    updateBadges();
+  } catch(e) { showSnack('⚠ Error al procesar la foto'); }
+  input.value = '';
+}
+
+// Carga img desde cache o IDB, la pone en un elemento <img>
+async function loadImgEl(folio, imgEl) {
+  if (imgCache[folio]) { imgEl.src = imgCache[folio]; return; }
+  const data = await idbGet(folio);
+  if (data) { imgCache[folio] = data; imgEl.src = data; }
+  else { imgEl.style.background = 'var(--cloud)'; }
 }
 
 function renderFotos() {
   const gallery = document.getElementById('foto-gallery');
-  const empty   = document.getElementById('foto-empty');
   gallery.innerHTML = '';
   const n = S.fotos.length;
   document.getElementById('foto-count-sub').textContent = n;
   document.getElementById('foto-count-gal').textContent = n;
-  if (!n) { gallery.appendChild(empty); return; }
+  if (!n) {
+    const emp = document.createElement('div');
+    emp.className = 'empty-state'; emp.style.gridColumn = 'span 3'; emp.style.padding = '24px';
+    emp.innerHTML = '<div class="ico">📷</div><p>Sin fotos</p>';
+    gallery.appendChild(emp); return;
+  }
   S.fotos.forEach((f, i) => {
     const div = document.createElement('div');
     div.className = 'foto-thumb';
-    div.innerHTML = `
-      <img src="${f.data}" alt="${f.folio}" onclick="openFotoModal(${i})">
-      <div class="foto-label-overlay">${f.folio}</div>
-      <button class="foto-del" onclick="removeFoto(${i})" title="Eliminar">✕</button>`;
+    const img = document.createElement('img');
+    img.alt = f.folio;
+    img.style.background = 'var(--cloud)';
+    img.onclick = () => openFotoModal(i);
+    loadImgEl(f.folio, img);
+    const lbl = document.createElement('div');
+    lbl.className = 'foto-label-overlay'; lbl.textContent = f.folio;
+    const del = document.createElement('button');
+    del.className = 'foto-del'; del.textContent = '✕'; del.title = 'Eliminar';
+    del.onclick = () => removeFoto(i);
+    div.appendChild(img); div.appendChild(lbl); div.appendChild(del);
     gallery.appendChild(div);
   });
 }
 
-function openFotoModal(i) {
+async function openFotoModal(i) {
   const f = S.fotos[i];
   document.getElementById('mf-title').textContent = f.folio;
-  document.getElementById('mf-img').src = f.data;
+  document.getElementById('mf-img').src = '';
   document.getElementById('mf-info').innerHTML =
-    `<strong>Área:</strong> ${f.area||'—'}<br>
-     <strong>Tipo:</strong> ${f.tipo||'—'}<br>
-     <strong>Descripción:</strong> ${f.desc||'—'}<br>
-     <strong>Hallazgo:</strong> ${f.hall||'—'}`;
+    `<strong>Área:</strong> ${f.area||'—'}<br><strong>Tipo:</strong> ${f.tipo||'—'}<br>
+     <strong>Descripción:</strong> ${f.desc||'—'}<br><strong>Hallazgo:</strong> ${f.hall||'—'}`;
   openModal('modal-foto');
+  const data = imgCache[f.folio] || await idbGet(f.folio);
+  if (data) { imgCache[f.folio] = data; document.getElementById('mf-img').src = data; }
 }
 
-function removeFoto(i) {
+async function removeFoto(i) {
   if (!confirm('¿Eliminar esta foto?')) return;
+  const folio = S.fotos[i].folio;
   S.fotos.splice(i, 1);
+  await idbDelete(folio);
+  delete imgCache[folio];
   renderFotos();
   updateBadges();
+}
+
+function renderNhPreview() {
+  const grid  = document.getElementById('nh-preview-grid');
+  const count = document.getElementById('nh-foto-count');
+  grid.innerHTML = '';
+  count.textContent = nhPendingFotos.length + (nhPendingFotos.length === 1 ? ' foto' : ' fotos');
+  if (!nhPendingFotos.length) {
+    const d = document.createElement('div');
+    d.className = 'nh-preview-empty'; d.style.gridColumn = 'span 4';
+    d.id = 'nh-preview-empty'; d.textContent = 'Sin fotos aún';
+    grid.appendChild(d); return;
+  }
+  nhPendingFotos.forEach((f, i) => {
+    const div = document.createElement('div');
+    div.className = 'hall-mini-thumb';
+    const img = document.createElement('img');
+    loadImgEl(f.folio, img);
+    const lbl = document.createElement('div');
+    lbl.className = 'hall-mini-folio'; lbl.textContent = f.folio;
+    const del = document.createElement('button');
+    del.className = 'hall-mini-del'; del.textContent = '✕';
+    del.onclick = () => removeNhFoto(i);
+    div.appendChild(img); div.appendChild(lbl); div.appendChild(del);
+    grid.appendChild(div);
+  });
+}
+
+function renderHallFotosGrid(hallIdx, folios) {
+  const grid = document.getElementById(`hall-fotos-grid-${hallIdx}`);
+  if (!grid) return;
+  grid.innerHTML = '';
+  const related = S.fotos.filter(f => (f.hall === S.hallazgos[hallIdx].folio) || (folios||[]).includes(f.folio));
+  if (!related.length) {
+    const d = document.createElement('div');
+    d.style.cssText = 'grid-column:span 4;font-size:11px;color:var(--smoke);padding:6px 0';
+    d.textContent = 'Sin fotos. Usa los botones de abajo para agregar.';
+    grid.appendChild(d); return;
+  }
+  related.forEach(f => {
+    const gIdx = S.fotos.indexOf(f);
+    const div = document.createElement('div');
+    div.className = 'hall-mini-thumb';
+    const img = document.createElement('img');
+    loadImgEl(f.folio, img);
+    img.onclick = () => openFotoModal(gIdx);
+    const lbl = document.createElement('div');
+    lbl.className = 'hall-mini-folio'; lbl.textContent = f.folio;
+    const del = document.createElement('button');
+    del.className = 'hall-mini-del'; del.textContent = '✕';
+    del.onclick = e => { e.stopPropagation(); removeFoto(gIdx).then(() => renderHallazgos()); };
+    div.appendChild(img); div.appendChild(lbl); div.appendChild(del);
+    grid.appendChild(div);
+  });
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1775,14 +2300,24 @@ ${S.fotos.length ? `
 // ════════════════════════════════════════════════════════════════════════════
 // GUARDAR / CARGAR / EXPORTAR
 // ════════════════════════════════════════════════════════════════════════════
+
+// El estado S se guarda en localStorage SIN imágenes (solo metadata)
+// Las imágenes viven en IndexedDB
+function stateWithoutImages() {
+  // Copia limpia: S.fotos sin el campo 'data' (que ya no existe, pero por seguridad)
+  return {
+    ...S,
+    fotos: S.fotos.map(f => { const {data, ...rest} = f; return rest; }),
+  };
+}
+
 function saveToLocal() {
   saveDatos();
   try {
-    const payload = JSON.stringify(S);
-    localStorage.setItem('nom026_data', payload);
-    showSnack('✓ Guardado en el dispositivo');
+    localStorage.setItem('nom026_data', JSON.stringify(stateWithoutImages()));
+    showSnack('✓ Guardado');
   } catch(e) {
-    showSnack('⚠ Error al guardar: ' + e.message);
+    showSnack('⚠ Error localStorage: ' + e.message);
   }
 }
 
@@ -1792,46 +2327,61 @@ function loadFromLocal() {
     if (!raw) return;
     const saved = JSON.parse(raw);
     Object.assign(S, saved);
-    loadDatos();
-    initConfig();
-    initLVSen();
-    initLVTub();
-    renderHallazgos();
-    renderFotos();
-    updateBadges();
+    loadDatos(); initConfig(); initLVSen(); initLVTub();
+    renderHallazgos(); renderFotos(); updateBadges();
   } catch(e) {
-    console.warn('No se pudo cargar el estado guardado', e);
+    console.warn('No se pudo cargar estado', e);
   }
 }
 
-function exportJSON() {
+// Exporta JSON + ZIP con imágenes en base64 (un JSON completo auto-suficiente)
+async function exportJSON() {
   saveDatos();
-  const str = JSON.stringify(S, null, 2);
-  const blob = new Blob([str], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  showSnack('⏳ Preparando exportación...');
+  // Incrustar imágenes en el export para portabilidad
+  const fotosConData = await Promise.all(S.fotos.map(async f => {
+    const data = imgCache[f.folio] || await idbGet(f.folio) || null;
+    return { ...f, data };
+  }));
+  const payload = { ...stateWithoutImages(), fotos: fotosConData };
+  const str  = JSON.stringify(payload, null, 2);
+  const blob = new Blob([str], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
   const empresa = (S.datos.d_razon || 'NOM026').replace(/[^a-zA-Z0-9]/g,'_').substring(0,20);
-  const fecha = new Date().toISOString().substring(0,10);
+  const fecha   = new Date().toISOString().substring(0,10);
   a.href = url; a.download = `${empresa}_NOM026_${fecha}.json`;
   a.click(); URL.revokeObjectURL(url);
-  showSnack('✓ Archivo exportado');
+  showSnack('✓ Exportación lista');
 }
 
 function importJSON() { document.getElementById('inp-import').click(); }
-function doImport(input) {
+async function doImport(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async e => {
     try {
       const data = JSON.parse(e.target.result);
-      if (confirm('¿Cargar este estudio? Se reemplazarán los datos actuales.')) {
-        Object.assign(S, data);
-        loadDatos(); initConfig(); initLVSen(); initLVTub();
-        renderHallazgos(); renderFotos(); updateBadges();
-        showSnack('✓ Estudio cargado exitosamente');
+      if (!confirm('¿Cargar este estudio? Se reemplazarán los datos actuales.')) return;
+      // Separar imágenes del resto
+      const fotosConData = (data.fotos || []).filter(f => f.data);
+      showSnack('⏳ Importando fotos...');
+      for (const f of fotosConData) {
+        await idbPut(f.folio, f.data);
+        imgCache[f.folio] = f.data;
       }
-    } catch { showSnack('⚠ Archivo JSON inválido'); }
+      // Limpiar data del objeto antes de meter al estado
+      data.fotos = (data.fotos || []).map(f => { const {data: d, ...rest} = f; return rest; });
+      Object.assign(S, data);
+      loadDatos(); initConfig(); initLVSen(); initLVTub();
+      renderHallazgos(); renderFotos(); updateBadges();
+      saveToLocal();
+      showSnack(`✓ Importado con ${fotosConData.length} foto(s)`);
+    } catch(err) {
+      showSnack('⚠ Archivo JSON inválido: ' + err.message);
+      console.error(err);
+    }
     input.value = '';
   };
   reader.readAsText(file);
@@ -1873,14 +2423,22 @@ function showSnack(msg) {
 // ════════════════════════════════════════════════════════════════════════════
 // ARRANQUE
 // ════════════════════════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Abrir IndexedDB primero
+  try {
+    await openIDB();
+  } catch(e) {
+    console.warn('IndexedDB no disponible, modo degradado', e);
+  }
+
+  // 2. Cargar estado (sin imágenes) desde localStorage
   loadFromLocal();
   if (!S.cfg.areas.length) initConfig();
   if (!Object.keys(S.lvSen).length) initLVSen();
   initLVTub();
   updateBadges();
 
-  // Auto-set fecha de hoy si está vacía
+  // 3. Auto-set fecha de hoy si está vacía
   if (!S.datos.d_fvisita) {
     const today = new Date().toISOString().substring(0,10);
     const el = document.getElementById('d_fvisita');
@@ -1889,7 +2447,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el2 && !el2.value) el2.value = today;
   }
 
-  // Auto-guardar cada 60 segundos
+  // 4. Pre-calentar cache de miniaturas en segundo plano (no bloquea UI)
+  if (idb && S.fotos.length) {
+    setTimeout(async () => {
+      for (const f of S.fotos) {
+        if (!imgCache[f.folio]) {
+          const data = await idbGet(f.folio);
+          if (data) imgCache[f.folio] = data;
+        }
+      }
+      // Re-render silencioso para mostrar miniaturas ya cargadas
+      if (document.getElementById('pg-fotos').classList.contains('active')) renderFotos();
+    }, 800);
+  }
+
+  // 5. Auto-guardar estado (sin imágenes) cada 60 segundos
   setInterval(saveToLocal, 60000);
 });
 </script>
